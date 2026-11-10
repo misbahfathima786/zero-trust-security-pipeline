@@ -1,0 +1,88 @@
+
+{% extends "base.html" %}
+
+{% block title %}Sign Up | Zero Trust Security Pipeline{% endblock %}
+
+{% block content %}
+
+<div class="auth-page">
+
+    <div class="auth-brand-panel">
+        <div class="brand-content">
+            <h1>ZERO TRUST</h1>
+            <h2>SECURITY PIPELINE</h2>
+            <p>
+                Join the team and contribute to a more secure
+                software supply chain.
+            </p>
+        </div>
+    </div>
+
+    <div class="auth-form-panel">
+        <div class="auth-form-container">
+
+            <h2>Create Account</h2>
+            <p class="auth-subtitle">Register using your team invitation code.</p>
+
+            <form method="POST" action="{{ url_for('auth.signup') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.display_name.label }}
+                    {{ form.display_name(class="form-control",
+                                         placeholder="Enter your full name") }}
+                    {% for error in form.display_name.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control",
+                                  placeholder="Enter your email") }}
+                    {% for error in form.email.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control",
+                                     placeholder="At least 10 characters") }}
+                    {% for error in form.password.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class="form-control",
+                                              placeholder="Re-enter your password") }}
+                    {% for error in form.confirm_password.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.invite_code.label }}
+                    {{ form.invite_code(class="form-control",
+                                        placeholder="Enter team invitation code") }}
+                    {% for error in form.invite_code.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                {{ form.submit(class="auth-button") }}
+            </form>
+
+            <p class="auth-footer">
+                Already have an account?
+                <a href="{{ url_for('auth.login') }}">Login</a>
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

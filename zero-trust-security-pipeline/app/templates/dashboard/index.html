@@ -1,0 +1,92 @@
+{% extends "layouts/app_shell.html" %}
+
+{% set active_nav = "dashboard" %}
+
+{% block title %}Dashboard | SecureBuild{% endblock %}
+
+{% block page_header %}
+    <h1>Dashboard</h1>
+    <p>Welcome to your security monitoring workspace.</p>
+{% endblock %}
+
+{% block page_content %}
+
+    <!-- Overview Cards -->
+    <section class="dashboard-section">
+        <h2>Security Overview</h2>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <span class="stat-label">Pipeline Status</span>
+                <h3>--</h3>
+                <p>Awaiting integration</p>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Potential Secrets</span>
+                <h3>--</h3>
+                <p>Scan data unavailable</p>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Vulnerabilities</span>
+                <h3>--</h3>
+                <p>Scan data unavailable</p>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Latest Scan</span>
+                <h3>--</h3>
+                <p>Awaiting pipeline integration</p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- Module Navigation -->
+    <section class="dashboard-section">
+        <h2>Project Modules</h2>
+
+        <div class="module-grid">
+
+            <a href="{{ url_for('pipeline.latest') }}" class="module-card">
+                <span class="module-icon">⌘</span>
+                <h3>Pipeline Overview</h3>
+                <p>View pipeline execution and build status.</p>
+                <span class="module-action">Open Module →</span>
+            </a>
+
+            <a href="{{ url_for('scans.index') }}" class="module-card">
+                <span class="module-icon">◈</span>
+                <h3>Security Scans</h3>
+                <p>Review secret detection and vulnerability scans.</p>
+                <span class="module-action">Open Module →</span>
+            </a>
+
+            <a href="#" class="module-card placeholder-link">
+                <span class="module-icon">▤</span>
+                <h3>Vulnerability Reports</h3>
+                <p>Explore security findings and reports.</p>
+                <span class="module-action">Open Module →</span>
+            </a>
+
+            <a href="#" class="module-card placeholder-link">
+                <span class="module-icon">⬡</span>
+                <h3>SBOM</h3>
+                <p>Access software bill of materials information.</p>
+                <span class="module-action">Open Module →</span>
+            </a>
+
+            <a href="#" class="module-card placeholder-link">
+                <span class="module-icon">◷</span>
+                <h3>Security History</h3>
+                <p>Track previous scans and security trends.</p>
+                <span class="module-action">Open Module →</span>
+            </a>
+
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{#- Layout for every logged-in page: sidebar + header + footer.
+
+    A page template does:
+        {% extends "layouts/app_shell.html" %}
+        {% set active_nav = "scans" %}
+        {% block title %}Scan Results | SecureBuild{% endblock %}
+        {% block page_header %}<h1>..</h1><p>..</p>{% endblock %}
+        {% block page_content %}...{% endblock %}
+    Optional: {% block page_css %} and {% block page_js %} for per-page assets. -#}
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    {% block page_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="dashboard-layout">
+
+    {% include "partials/sidebar.html" %}
+
+    <main class="dashboard-main" id="main">
+
+        <header class="dashboard-header">
+            <div class="dashboard-header__text">
+                {% block page_header %}{% endblock %}
+            </div>
+
+            <div class="user-profile">
+                <div class="profile-avatar" aria-hidden="true">
+                    {{ current_user.display_name[0]|upper }}
+                </div>
+                <span>{{ current_user.display_name }}</span>
+            </div>
+        </header>
+
+        {% block page_content %}{% endblock %}
+
+        <footer class="dashboard-footer">
+            Software Supply Chain Security — Zero Trust Enforcement Pipeline
+        </footer>
+
+    </main>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    {% block page_js %}{% endblock %}
+{% endblock %}

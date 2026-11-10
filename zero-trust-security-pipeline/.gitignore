@@ -1,1 +1,29 @@
+# Python virtual environments
+.venv/
+venv/
 
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Test cache
+.pytest_cache/
+.coverage
+
+# IDE files
+.vscode/
+.idea/
+
+# Salesforce CLI metadata
+.sf/

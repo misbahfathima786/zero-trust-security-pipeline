@@ -1,0 +1,138 @@
+{% extends "layouts/app_shell.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import status_badge, tab_list, empty_state %}
+
+{% set active_nav = "pipeline" %}
+
+{% set stage_icons = {
+    "code_push": "code-push", "build": "build", "gitleaks": "gitleaks",
+    "trivy": "trivy", "policy": "shield"
+} %}
+
+{% block title %}Build #{{ run.run_id }} | SecureBuild{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pipeline.css') }}">
+{% endblock %}
+
+{% block page_header %}
+    <h1>Build #{{ run.run_id }} Details</h1>
+    <div class="build-meta">
+        {{ status_badge(run.overall_status) }}
+        <span>Triggered by {{ run.trigger }} to <strong>{{ run.branch }}</strong></span>
+        <span class="build-meta__sep" aria-hidden="true">·</span>
+        <time datetime="{{ run.timestamp }}" title="{{ run.timestamp|format_datetime }} UTC">{{ run.timestamp|time_ago }}</time>
+        <span class="build-meta__sep" aria-hidden="true">·</span>
+        <span>Commit <code>{{ run.commit }}</code></span>
+        <span class="build-meta__sep" aria-hidden="true">·</span>
+        <span>Duration {{ duration }}</span>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+
+{% if is_sample %}
+<div class="notice notice--info" role="note">
+    <strong>Sample data.</strong> This build is a placeholder, not output from a real pipeline run.
+</div>
+{% endif %}
+
+{% if run.overall_status == "blocked" %}
+<div class="notice notice--blocked" role="alert">
+    <strong>This build is blocked.</strong> A required scan did not complete, so the build cannot be treated as clean.
+</div>
+{% endif %}
+
+<nav class="build-nav" aria-label="Build navigation">
+    {% if older_id %}
+        <a class="btn btn--secondary" href="{{ url_for('pipeline.detail', run_id=older_id) }}">{{ icon("arrow-left", 15) }} Build #{{ older_id }}</a>
+    {% else %}<span></span>{% endif %}
+    {% if newer_id %}
+        <a class="btn btn--secondary" href="{{ url_for('pipeline.detail', run_id=newer_id) }}">Build #{{ newer_id }} {{ icon("arrow-right", 15) }}</a>
+    {% endif %}
+</nav>
+
+<section class="card" aria-labelledby="stages-title">
+    <h2 class="sr-only" id="stages-title">Pipeline stages</h2>
+    <ol class="stepper">
+        {% for s in stages %}
+        <li class="stepper__step stepper__step--{{ s.status }}">
+            <span class="stepper__node">{{ icon(stage_icons[s.key], 22) }}</span>
+            <span class="stepper__name">{{ s.label }}</span>
+            {{ status_badge(s.status) }}
+            <span class="stepper__time">{{ s.duration }}</span>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<section class="card" data-tabs>
+    {{ tab_list([
+        {"id": "build-logs", "label": "Build Logs", "panel": "panel-build-logs"},
+        {"id": "scan-logs",  "label": "Scan Logs",  "panel": "panel-scan-logs"},
+        {"id": "artifacts",  "label": "Artifacts",  "panel": "panel-artifacts"},
+        {"id": "timeline",   "label": "Timeline",   "panel": "panel-timeline"}
+    ], "Build details") }}
+
+    {% macro terminal(lines, label) %}
+        {% if lines %}
+        {# Log text is auto-escaped on purpose. Never add |safe here. #}
+        <pre class="terminal" tabindex="0" aria-label="{{ label }}"><code>{% for l in lines %}{% set lvl = l.level if l.level in ['info', 'success', 'warn', 'error'] else 'info' %}<span class="log log--{{ lvl }}"><span class="log__time">[{{ l.time }}]</span> {{ l.message }}</span>
+{% endfor %}</code></pre>
+        {% else %}
+            {{ empty_state("No log output", "This stage has not produced any logs yet.", "list") }}
+        {% endif %}
+    {% endmacro %}
+
+    <div role="tabpanel" id="panel-build-logs" aria-labelledby="tab-build-logs">
+        {{ terminal(run.logs.build, "Build logs") }}
+    </div>
+
+    <div role="tabpanel" id="panel-scan-logs" aria-labelledby="tab-scan-logs" hidden>
+        {{ terminal(run.logs.scans, "Scan logs") }}
+    </div>
+
+    <div role="tabpanel" id="panel-artifacts" aria-labelledby="tab-artifacts" hidden>
+        {% if run.artifacts %}
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Size</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+                <tbody>
+                {% for a in run.artifacts %}
+                    <tr>
+                        <td><code>{{ a.name }}</code></td>
+                        <td>{{ a.type }}</td>
+                        <td>{{ a.size_kb }} KB</td>
+                        <td class="cell-action">
+                            <button type="button" class="btn btn--secondary" disabled title="Downloads are enabled once real reports are connected">
+                                {{ icon("download", 15) }} Download
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            {{ empty_state("No artifacts", "This build did not produce any reports or SBOM files.", "inbox") }}
+        {% endif %}
+    </div>
+
+    <div role="tabpanel" id="panel-timeline" aria-labelledby="tab-timeline" hidden>
+        <ol class="timeline">
+            {% for e in run.timeline %}
+            <li class="timeline__item timeline__item--{{ e.status }}">
+                <span class="timeline__time">{{ e.time or "-" }}</span>
+                <span class="timeline__msg">{{ e.message }}</span>
+                {{ status_badge(e.status) }}
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block page_js %}
+    <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
+{% endblock %}

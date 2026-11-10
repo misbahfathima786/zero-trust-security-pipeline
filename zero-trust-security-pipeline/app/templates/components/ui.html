@@ -1,0 +1,68 @@
+{#- Reusable UI components. Import what you need:
+    {% from "components/ui.html" import status_badge, severity_badge, summary_card, tab_list, empty_state %}
+
+    Status palette (single source of truth for the whole app):
+      passed  failed  warning  running  pending  blocked  skipped
+    "blocked" = scanner/database/pipeline error. It is NOT a pass: it must never
+    be shown green or as zero findings. Unknown values fall back to blocked. -#}
+{% from "components/icons.html" import icon %}
+
+{% set STATUS = {
+  "passed":  ("check-circle",   "Passed"),
+  "failed":  ("x-circle",       "Failed"),
+  "warning": ("alert-triangle", "Warning"),
+  "running": ("running",        "Running"),
+  "pending": ("pending",        "Pending"),
+  "blocked": ("blocked",        "Blocked / Error"),
+  "skipped": ("skipped",        "Skipped")
+} %}
+
+{#- Status shown as icon + text (never colour alone). -#}
+{% macro status_badge(status, label=None) -%}
+{%- set known = status in STATUS -%}
+{%- set key = status if known else 'blocked' -%}
+{%- set meta = STATUS[key] -%}
+<span class="badge badge--{{ key }}">{{ icon(meta[0], 14, 'spin' if key == 'running' else '') }}<span>{{ label or (meta[1] if known else 'Unknown') }}</span></span>
+{%- endmacro %}
+
+{#- severity: critical | high | medium | low | info -#}
+{% macro severity_badge(severity) -%}
+<span class="sev sev--{{ severity }}"><span class="sev__dot" aria-hidden="true"></span>{{ severity|capitalize }}</span>
+{%- endmacro %}
+
+{#- Summary card. `key` lets JS find and update the value. -#}
+{% macro summary_card(label, value, icon_name, tone='neutral', key=None) -%}
+<div class="summary-card summary-card--{{ tone }}">
+    <span class="summary-card__icon">{{ icon(icon_name, 22) }}</span>
+    <div>
+        <span class="summary-card__value"{% if key %} data-summary="{{ key }}"{% endif %}>{{ value }}</span>
+        <span class="summary-card__label">{{ label }}</span>
+    </div>
+</div>
+{%- endmacro %}
+
+{#- Tab list. tabs = [{"id": "logs", "label": "Build Logs", "panel": "panel-logs", "filter": "optional"}]
+    Behaviour (arrow keys, Home/End, panel toggling) comes from static/js/tabs.js
+    - include it on the page and wrap the tablist and panels in an element with data-tabs. -#}
+{% macro tab_list(tabs, label, active=None) -%}
+{%- set active_id = active or tabs[0].id -%}
+<div class="tabs" role="tablist" aria-label="{{ label }}">
+    {% for tab in tabs %}
+    <button type="button" role="tab" class="tabs__tab"
+            id="tab-{{ tab.id }}" data-tab="{{ tab.id }}"
+            {% if tab.filter %}data-filter="{{ tab.filter }}"{% endif %}
+            aria-controls="{{ tab.panel }}"
+            aria-selected="{{ 'true' if tab.id == active_id else 'false' }}"
+            tabindex="{{ '0' if tab.id == active_id else '-1' }}">{{ tab.label }}</button>
+    {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro empty_state(title, text, icon_name='inbox') -%}
+<div class="empty-state">
+    <span class="empty-state__icon">{{ icon(icon_name, 36) }}</span>
+    <h3>{{ title }}</h3>
+    <p>{{ text }}</p>
+    {{ caller() if caller else '' }}
+</div>
+{%- endmacro %}
