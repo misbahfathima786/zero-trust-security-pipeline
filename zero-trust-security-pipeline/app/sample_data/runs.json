@@ -1,0 +1,1426 @@
+{
+  "schema_version": 1,
+  "is_sample": true,
+  "runs": [
+    {
+      "run_id": 44,
+      "commit": "e4f5a6b",
+      "branch": "main",
+      "trigger": "push",
+      "timestamp": "2026-11-08T05:40:10Z",
+      "overall_status": "running",
+      "duration_s": null,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-08T05:40:10Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-08T05:40:12Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "passed",
+          "started_at": "2026-11-08T05:40:50Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "running",
+          "started_at": "2026-11-08T05:41:04Z",
+          "duration_s": null
+        },
+        {
+          "key": "policy",
+          "status": "pending",
+          "started_at": null,
+          "duration_s": null
+        }
+      ],
+      "secrets": {
+        "count": 0,
+        "findings": []
+      },
+      "vulnerabilities": {
+        "counts": null,
+        "findings": []
+      },
+      "policy": {
+        "result": null,
+        "rules": []
+      },
+      "sbom_artifact": null,
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "05:40:10",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "05:40:11",
+            "level": "info",
+            "message": "Checkout code (e4f5a6b on main)"
+          },
+          {
+            "time": "05:40:12",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "05:40:42",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "05:40:50",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "05:41:04",
+            "level": "info",
+            "message": "Run Trivy (vulnerability scan)"
+          },
+          {
+            "time": "05:42:06",
+            "level": "info",
+            "message": "Pipeline in progress..."
+          }
+        ],
+        "scans": [
+          {
+            "time": "05:40:50",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "05:41:02",
+            "level": "success",
+            "message": "[gitleaks] no leaks found"
+          },
+          {
+            "time": "05:41:04",
+            "level": "info",
+            "message": "[trivy] scanning dependencies (requirements.txt) and container image"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "05:40:10",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "05:40:12",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "05:40:50",
+          "stage": "gitleaks",
+          "status": "passed",
+          "message": "Gitleaks scan completed"
+        },
+        {
+          "time": "05:41:04",
+          "stage": "trivy",
+          "status": "running",
+          "message": "Trivy scan in progress"
+        },
+        {
+          "time": null,
+          "stage": "policy",
+          "status": "pending",
+          "message": "Policy check waiting to start"
+        }
+      ]
+    },
+    {
+      "run_id": 43,
+      "commit": "9c8d7e6",
+      "branch": "main",
+      "trigger": "push",
+      "timestamp": "2026-11-07T17:05:00Z",
+      "overall_status": "blocked",
+      "duration_s": 75,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-07T17:05:00Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-07T17:05:02Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "passed",
+          "started_at": "2026-11-07T17:05:40Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "blocked",
+          "started_at": "2026-11-07T17:05:54Z",
+          "duration_s": 21
+        },
+        {
+          "key": "policy",
+          "status": "skipped",
+          "started_at": null,
+          "duration_s": null
+        }
+      ],
+      "secrets": {
+        "count": 0,
+        "findings": []
+      },
+      "vulnerabilities": {
+        "counts": null,
+        "findings": []
+      },
+      "policy": {
+        "result": null,
+        "rules": []
+      },
+      "sbom_artifact": null,
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "17:05:00",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "17:05:01",
+            "level": "info",
+            "message": "Checkout code (9c8d7e6 on main)"
+          },
+          {
+            "time": "17:05:02",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "17:05:32",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "17:05:40",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "17:05:54",
+            "level": "info",
+            "message": "Run Trivy (vulnerability scan)"
+          },
+          {
+            "time": "17:06:14",
+            "level": "error",
+            "message": "Trivy: scanner error - vulnerability database unavailable"
+          },
+          {
+            "time": "17:06:15",
+            "level": "error",
+            "message": "Pipeline blocked: a required scan did not complete (treated as NOT clean)."
+          }
+        ],
+        "scans": [
+          {
+            "time": "17:05:40",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "17:05:52",
+            "level": "success",
+            "message": "[gitleaks] no leaks found"
+          },
+          {
+            "time": "17:05:54",
+            "level": "info",
+            "message": "[trivy] updating vulnerability database"
+          },
+          {
+            "time": "17:06:14",
+            "level": "error",
+            "message": "[trivy] ERROR: failed to download vulnerability DB (connection timed out)"
+          },
+          {
+            "time": "17:06:15",
+            "level": "error",
+            "message": "[trivy] result unavailable - marked BLOCKED (fail closed)"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "17:05:00",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "17:05:02",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "17:05:40",
+          "stage": "gitleaks",
+          "status": "passed",
+          "message": "Gitleaks scan completed"
+        },
+        {
+          "time": "17:05:54",
+          "stage": "trivy",
+          "status": "blocked",
+          "message": "Trivy scan blocked (scanner error)"
+        },
+        {
+          "time": null,
+          "stage": "policy",
+          "status": "skipped",
+          "message": "Policy check skipped (earlier stage did not pass)"
+        }
+      ]
+    },
+    {
+      "run_id": 42,
+      "commit": "a1b2c3d",
+      "branch": "main",
+      "trigger": "push",
+      "timestamp": "2026-11-07T09:30:15Z",
+      "overall_status": "passed",
+      "duration_s": 122,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-07T09:30:15Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-07T09:30:17Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "passed",
+          "started_at": "2026-11-07T09:30:55Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "passed",
+          "started_at": "2026-11-07T09:31:09Z",
+          "duration_s": 62
+        },
+        {
+          "key": "policy",
+          "status": "passed",
+          "started_at": "2026-11-07T09:32:11Z",
+          "duration_s": 6
+        }
+      ],
+      "secrets": {
+        "count": 0,
+        "findings": []
+      },
+      "vulnerabilities": {
+        "counts": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "info": 0
+        },
+        "findings": []
+      },
+      "policy": {
+        "result": "passed",
+        "rules": [
+          {
+            "name": "Block critical vulnerabilities",
+            "result": "passed",
+            "detail": "No critical findings"
+          },
+          {
+            "name": "Block high vulnerabilities",
+            "result": "passed",
+            "detail": "No high findings"
+          },
+          {
+            "name": "Block secrets detected",
+            "result": "passed",
+            "detail": "No secrets found"
+          },
+          {
+            "name": "Enforce dependency allowlist",
+            "result": "skipped",
+            "detail": "Rule disabled in policy"
+          }
+        ]
+      },
+      "sbom_artifact": "sbom-42.cdx.json",
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        },
+        {
+          "name": "trivy.json",
+          "type": "Vulnerability report",
+          "size_kb": 48
+        },
+        {
+          "name": "sbom-42.cdx.json",
+          "type": "SBOM (CycloneDX)",
+          "size_kb": 36
+        },
+        {
+          "name": "summary.json",
+          "type": "Run summary",
+          "size_kb": 3
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "09:30:15",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "09:30:16",
+            "level": "info",
+            "message": "Checkout code (a1b2c3d on main)"
+          },
+          {
+            "time": "09:30:17",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "09:30:47",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "09:30:55",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "09:31:09",
+            "level": "info",
+            "message": "Run Trivy (vulnerability scan)"
+          },
+          {
+            "time": "09:32:11",
+            "level": "info",
+            "message": "Apply security policy"
+          },
+          {
+            "time": "09:32:17",
+            "level": "success",
+            "message": "Pipeline completed successfully!"
+          }
+        ],
+        "scans": [
+          {
+            "time": "09:30:55",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "09:31:07",
+            "level": "success",
+            "message": "[gitleaks] no leaks found"
+          },
+          {
+            "time": "09:31:09",
+            "level": "info",
+            "message": "[trivy] scanning dependencies (requirements.txt) and container image"
+          },
+          {
+            "time": "09:32:09",
+            "level": "success",
+            "message": "[trivy] no vulnerabilities found"
+          },
+          {
+            "time": "09:32:11",
+            "level": "info",
+            "message": "[policy] evaluating rules from security-policy.yaml"
+          },
+          {
+            "time": "09:32:16",
+            "level": "success",
+            "message": "[policy] result: PASSED"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "09:30:15",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "09:30:17",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "09:30:55",
+          "stage": "gitleaks",
+          "status": "passed",
+          "message": "Gitleaks scan completed"
+        },
+        {
+          "time": "09:31:09",
+          "stage": "trivy",
+          "status": "passed",
+          "message": "Trivy scan completed"
+        },
+        {
+          "time": "09:32:11",
+          "stage": "policy",
+          "status": "passed",
+          "message": "Policy check completed"
+        }
+      ]
+    },
+    {
+      "run_id": 41,
+      "commit": "7788aab",
+      "branch": "main",
+      "trigger": "push",
+      "timestamp": "2026-11-06T14:12:40Z",
+      "overall_status": "passed",
+      "duration_s": 122,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-06T14:12:40Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-06T14:12:42Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "passed",
+          "started_at": "2026-11-06T14:13:20Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "warning",
+          "started_at": "2026-11-06T14:13:34Z",
+          "duration_s": 62
+        },
+        {
+          "key": "policy",
+          "status": "passed",
+          "started_at": "2026-11-06T14:14:36Z",
+          "duration_s": 6
+        }
+      ],
+      "secrets": {
+        "count": 0,
+        "findings": []
+      },
+      "vulnerabilities": {
+        "counts": {
+          "critical": 0,
+          "high": 0,
+          "medium": 3,
+          "low": 2,
+          "info": 0
+        },
+        "findings": [
+          {
+            "package": "jinja2",
+            "version": "3.1.2",
+            "severity": "medium",
+            "vuln_id": "SAMPLE-0004",
+            "fixed_version": "3.1.4"
+          },
+          {
+            "package": "requests",
+            "version": "2.31.0",
+            "severity": "medium",
+            "vuln_id": "SAMPLE-0005",
+            "fixed_version": "2.32.0"
+          },
+          {
+            "package": "pyyaml",
+            "version": "5.4",
+            "severity": "medium",
+            "vuln_id": "SAMPLE-0006",
+            "fixed_version": "6.0.1"
+          },
+          {
+            "package": "urllib3",
+            "version": "1.26.18",
+            "severity": "low",
+            "vuln_id": "SAMPLE-0007",
+            "fixed_version": "2.0.7"
+          },
+          {
+            "package": "idna",
+            "version": "3.4",
+            "severity": "low",
+            "vuln_id": "SAMPLE-0008",
+            "fixed_version": "3.7"
+          }
+        ]
+      },
+      "policy": {
+        "result": "passed",
+        "rules": [
+          {
+            "name": "Block critical vulnerabilities",
+            "result": "passed",
+            "detail": "No critical findings"
+          },
+          {
+            "name": "Block high vulnerabilities",
+            "result": "passed",
+            "detail": "No high findings"
+          },
+          {
+            "name": "Block secrets detected",
+            "result": "passed",
+            "detail": "No secrets found"
+          },
+          {
+            "name": "Enforce dependency allowlist",
+            "result": "skipped",
+            "detail": "Rule disabled in policy"
+          }
+        ]
+      },
+      "sbom_artifact": "sbom-41.cdx.json",
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        },
+        {
+          "name": "trivy.json",
+          "type": "Vulnerability report",
+          "size_kb": 48
+        },
+        {
+          "name": "sbom-41.cdx.json",
+          "type": "SBOM (CycloneDX)",
+          "size_kb": 36
+        },
+        {
+          "name": "summary.json",
+          "type": "Run summary",
+          "size_kb": 3
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "14:12:40",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "14:12:41",
+            "level": "info",
+            "message": "Checkout code (7788aab on main)"
+          },
+          {
+            "time": "14:12:42",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "14:13:12",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "14:13:20",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "14:13:34",
+            "level": "info",
+            "message": "Run Trivy (vulnerability scan)"
+          },
+          {
+            "time": "14:14:34",
+            "level": "warn",
+            "message": "Trivy: 5 vulnerabilities found (below blocking threshold)"
+          },
+          {
+            "time": "14:14:36",
+            "level": "info",
+            "message": "Apply security policy"
+          },
+          {
+            "time": "14:14:42",
+            "level": "success",
+            "message": "Pipeline completed successfully!"
+          }
+        ],
+        "scans": [
+          {
+            "time": "14:13:20",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "14:13:32",
+            "level": "success",
+            "message": "[gitleaks] no leaks found"
+          },
+          {
+            "time": "14:13:34",
+            "level": "info",
+            "message": "[trivy] scanning dependencies (requirements.txt) and container image"
+          },
+          {
+            "time": "14:14:34",
+            "level": "warn",
+            "message": "[trivy] 5 vulnerabilities (critical=0 high=0 medium=3 low=2)"
+          },
+          {
+            "time": "14:14:36",
+            "level": "info",
+            "message": "[policy] evaluating rules from security-policy.yaml"
+          },
+          {
+            "time": "14:14:41",
+            "level": "success",
+            "message": "[policy] result: PASSED"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "14:12:40",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "14:12:42",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "14:13:20",
+          "stage": "gitleaks",
+          "status": "passed",
+          "message": "Gitleaks scan completed"
+        },
+        {
+          "time": "14:13:34",
+          "stage": "trivy",
+          "status": "warning",
+          "message": "Trivy scan completed with warnings"
+        },
+        {
+          "time": "14:14:36",
+          "stage": "policy",
+          "status": "passed",
+          "message": "Policy check completed"
+        }
+      ]
+    },
+    {
+      "run_id": 40,
+      "commit": "5d4c3b2",
+      "branch": "feature/login",
+      "trigger": "push",
+      "timestamp": "2026-11-05T16:45:05Z",
+      "overall_status": "failed",
+      "duration_s": 122,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-05T16:45:05Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-05T16:45:07Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "passed",
+          "started_at": "2026-11-05T16:45:45Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "failed",
+          "started_at": "2026-11-05T16:45:59Z",
+          "duration_s": 62
+        },
+        {
+          "key": "policy",
+          "status": "failed",
+          "started_at": "2026-11-05T16:47:01Z",
+          "duration_s": 6
+        }
+      ],
+      "secrets": {
+        "count": 0,
+        "findings": []
+      },
+      "vulnerabilities": {
+        "counts": {
+          "critical": 1,
+          "high": 2,
+          "medium": 3,
+          "low": 1,
+          "info": 0
+        },
+        "findings": [
+          {
+            "package": "cryptography",
+            "version": "41.0.3",
+            "severity": "critical",
+            "vuln_id": "SAMPLE-0001",
+            "fixed_version": "41.0.4"
+          },
+          {
+            "package": "flask",
+            "version": "2.3.3",
+            "severity": "high",
+            "vuln_id": "SAMPLE-0002",
+            "fixed_version": "2.3.4"
+          },
+          {
+            "package": "werkzeug",
+            "version": "2.3.7",
+            "severity": "high",
+            "vuln_id": "SAMPLE-0003",
+            "fixed_version": "2.4.0"
+          },
+          {
+            "package": "jinja2",
+            "version": "3.1.2",
+            "severity": "medium",
+            "vuln_id": "SAMPLE-0004",
+            "fixed_version": "3.1.4"
+          },
+          {
+            "package": "requests",
+            "version": "2.31.0",
+            "severity": "medium",
+            "vuln_id": "SAMPLE-0005",
+            "fixed_version": "2.32.0"
+          },
+          {
+            "package": "pyyaml",
+            "version": "5.4",
+            "severity": "medium",
+            "vuln_id": "SAMPLE-0006",
+            "fixed_version": "6.0.1"
+          },
+          {
+            "package": "urllib3",
+            "version": "1.26.18",
+            "severity": "low",
+            "vuln_id": "SAMPLE-0007",
+            "fixed_version": "2.0.7"
+          }
+        ]
+      },
+      "policy": {
+        "result": "failed",
+        "rules": [
+          {
+            "name": "Block critical vulnerabilities",
+            "result": "failed",
+            "detail": "1 critical found"
+          },
+          {
+            "name": "Block high vulnerabilities",
+            "result": "failed",
+            "detail": "2 high found"
+          },
+          {
+            "name": "Block secrets detected",
+            "result": "passed",
+            "detail": "No secrets found"
+          },
+          {
+            "name": "Enforce dependency allowlist",
+            "result": "skipped",
+            "detail": "Rule disabled in policy"
+          }
+        ]
+      },
+      "sbom_artifact": "sbom-40.cdx.json",
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        },
+        {
+          "name": "trivy.json",
+          "type": "Vulnerability report",
+          "size_kb": 48
+        },
+        {
+          "name": "sbom-40.cdx.json",
+          "type": "SBOM (CycloneDX)",
+          "size_kb": 36
+        },
+        {
+          "name": "summary.json",
+          "type": "Run summary",
+          "size_kb": 3
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "16:45:05",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "16:45:06",
+            "level": "info",
+            "message": "Checkout code (5d4c3b2 on feature/login)"
+          },
+          {
+            "time": "16:45:07",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "16:45:37",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "16:45:45",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "16:45:59",
+            "level": "info",
+            "message": "Run Trivy (vulnerability scan)"
+          },
+          {
+            "time": "16:46:59",
+            "level": "error",
+            "message": "Trivy: 7 vulnerabilities found"
+          },
+          {
+            "time": "16:47:01",
+            "level": "info",
+            "message": "Apply security policy"
+          },
+          {
+            "time": "16:47:07",
+            "level": "error",
+            "message": "Pipeline failed: security policy violated."
+          }
+        ],
+        "scans": [
+          {
+            "time": "16:45:45",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "16:45:57",
+            "level": "success",
+            "message": "[gitleaks] no leaks found"
+          },
+          {
+            "time": "16:45:59",
+            "level": "info",
+            "message": "[trivy] scanning dependencies (requirements.txt) and container image"
+          },
+          {
+            "time": "16:46:59",
+            "level": "error",
+            "message": "[trivy] 7 vulnerabilities (critical=1 high=2 medium=3 low=1)"
+          },
+          {
+            "time": "16:47:01",
+            "level": "info",
+            "message": "[policy] evaluating rules from security-policy.yaml"
+          },
+          {
+            "time": "16:47:06",
+            "level": "error",
+            "message": "[policy] result: FAILED"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "16:45:05",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "16:45:07",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "16:45:45",
+          "stage": "gitleaks",
+          "status": "passed",
+          "message": "Gitleaks scan completed"
+        },
+        {
+          "time": "16:45:59",
+          "stage": "trivy",
+          "status": "failed",
+          "message": "Trivy scan failed"
+        },
+        {
+          "time": "16:47:01",
+          "stage": "policy",
+          "status": "failed",
+          "message": "Policy check failed"
+        }
+      ]
+    },
+    {
+      "run_id": 39,
+      "commit": "0f1e2d3",
+      "branch": "main",
+      "trigger": "push",
+      "timestamp": "2026-11-04T10:20:30Z",
+      "overall_status": "passed",
+      "duration_s": 122,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-04T10:20:30Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-04T10:20:32Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "passed",
+          "started_at": "2026-11-04T10:21:10Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "passed",
+          "started_at": "2026-11-04T10:21:24Z",
+          "duration_s": 62
+        },
+        {
+          "key": "policy",
+          "status": "passed",
+          "started_at": "2026-11-04T10:22:26Z",
+          "duration_s": 6
+        }
+      ],
+      "secrets": {
+        "count": 0,
+        "findings": []
+      },
+      "vulnerabilities": {
+        "counts": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "info": 0
+        },
+        "findings": []
+      },
+      "policy": {
+        "result": "passed",
+        "rules": [
+          {
+            "name": "Block critical vulnerabilities",
+            "result": "passed",
+            "detail": "No critical findings"
+          },
+          {
+            "name": "Block high vulnerabilities",
+            "result": "passed",
+            "detail": "No high findings"
+          },
+          {
+            "name": "Block secrets detected",
+            "result": "passed",
+            "detail": "No secrets found"
+          },
+          {
+            "name": "Enforce dependency allowlist",
+            "result": "skipped",
+            "detail": "Rule disabled in policy"
+          }
+        ]
+      },
+      "sbom_artifact": "sbom-39.cdx.json",
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        },
+        {
+          "name": "trivy.json",
+          "type": "Vulnerability report",
+          "size_kb": 48
+        },
+        {
+          "name": "sbom-39.cdx.json",
+          "type": "SBOM (CycloneDX)",
+          "size_kb": 36
+        },
+        {
+          "name": "summary.json",
+          "type": "Run summary",
+          "size_kb": 3
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "10:20:30",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "10:20:31",
+            "level": "info",
+            "message": "Checkout code (0f1e2d3 on main)"
+          },
+          {
+            "time": "10:20:32",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "10:21:02",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "10:21:10",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "10:21:24",
+            "level": "info",
+            "message": "Run Trivy (vulnerability scan)"
+          },
+          {
+            "time": "10:22:26",
+            "level": "info",
+            "message": "Apply security policy"
+          },
+          {
+            "time": "10:22:32",
+            "level": "success",
+            "message": "Pipeline completed successfully!"
+          }
+        ],
+        "scans": [
+          {
+            "time": "10:21:10",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "10:21:22",
+            "level": "success",
+            "message": "[gitleaks] no leaks found"
+          },
+          {
+            "time": "10:21:24",
+            "level": "info",
+            "message": "[trivy] scanning dependencies (requirements.txt) and container image"
+          },
+          {
+            "time": "10:22:24",
+            "level": "success",
+            "message": "[trivy] no vulnerabilities found"
+          },
+          {
+            "time": "10:22:26",
+            "level": "info",
+            "message": "[policy] evaluating rules from security-policy.yaml"
+          },
+          {
+            "time": "10:22:31",
+            "level": "success",
+            "message": "[policy] result: PASSED"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "10:20:30",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "10:20:32",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "10:21:10",
+          "stage": "gitleaks",
+          "status": "passed",
+          "message": "Gitleaks scan completed"
+        },
+        {
+          "time": "10:21:24",
+          "stage": "trivy",
+          "status": "passed",
+          "message": "Trivy scan completed"
+        },
+        {
+          "time": "10:22:26",
+          "stage": "policy",
+          "status": "passed",
+          "message": "Policy check completed"
+        }
+      ]
+    },
+    {
+      "run_id": 38,
+      "commit": "bb33cc4",
+      "branch": "feature/config-update",
+      "trigger": "push",
+      "timestamp": "2026-11-03T13:02:00Z",
+      "overall_status": "failed",
+      "duration_s": 54,
+      "stages": [
+        {
+          "key": "code_push",
+          "status": "passed",
+          "started_at": "2026-11-03T13:02:00Z",
+          "duration_s": 2
+        },
+        {
+          "key": "build",
+          "status": "passed",
+          "started_at": "2026-11-03T13:02:02Z",
+          "duration_s": 38
+        },
+        {
+          "key": "gitleaks",
+          "status": "failed",
+          "started_at": "2026-11-03T13:02:40Z",
+          "duration_s": 14
+        },
+        {
+          "key": "trivy",
+          "status": "skipped",
+          "started_at": null,
+          "duration_s": null
+        },
+        {
+          "key": "policy",
+          "status": "skipped",
+          "started_at": null,
+          "duration_s": null
+        }
+      ],
+      "secrets": {
+        "count": 2,
+        "findings": [
+          {
+            "rule": "generic-api-key",
+            "file": "config/settings.py",
+            "line": 14,
+            "value": "[REDACTED]"
+          },
+          {
+            "rule": "sample-token-rule",
+            "file": "scripts/deploy.sh",
+            "line": 7,
+            "value": "[REDACTED]"
+          }
+        ]
+      },
+      "vulnerabilities": {
+        "counts": null,
+        "findings": []
+      },
+      "policy": {
+        "result": null,
+        "rules": []
+      },
+      "sbom_artifact": null,
+      "artifacts": [
+        {
+          "name": "gitleaks.json",
+          "type": "Secret scan report (redacted)",
+          "size_kb": 2
+        },
+        {
+          "name": "summary.json",
+          "type": "Run summary",
+          "size_kb": 3
+        }
+      ],
+      "logs": {
+        "build": [
+          {
+            "time": "13:02:00",
+            "level": "info",
+            "message": "Starting workflow..."
+          },
+          {
+            "time": "13:02:01",
+            "level": "info",
+            "message": "Checkout code (bb33cc4 on feature/config-update)"
+          },
+          {
+            "time": "13:02:02",
+            "level": "info",
+            "message": "Build application (Python 3.11)"
+          },
+          {
+            "time": "13:02:32",
+            "level": "info",
+            "message": "Build completed"
+          },
+          {
+            "time": "13:02:40",
+            "level": "info",
+            "message": "Run Gitleaks (secret detection)"
+          },
+          {
+            "time": "13:02:53",
+            "level": "error",
+            "message": "Gitleaks: 2 potential secret(s) found"
+          },
+          {
+            "time": "13:02:54",
+            "level": "error",
+            "message": "Pipeline failed: security policy violated."
+          }
+        ],
+        "scans": [
+          {
+            "time": "13:02:40",
+            "level": "info",
+            "message": "[gitleaks] scanning git history (128 commits)"
+          },
+          {
+            "time": "13:02:48",
+            "level": "error",
+            "message": "[gitleaks] leak: rule=generic-api-key file=config/settings.py line=14 value=[REDACTED]"
+          },
+          {
+            "time": "13:02:48",
+            "level": "error",
+            "message": "[gitleaks] leak: rule=sample-token-rule file=scripts/deploy.sh line=7 value=[REDACTED]"
+          }
+        ]
+      },
+      "timeline": [
+        {
+          "time": "13:02:00",
+          "stage": "code_push",
+          "status": "passed",
+          "message": "Code push completed"
+        },
+        {
+          "time": "13:02:02",
+          "stage": "build",
+          "status": "passed",
+          "message": "Build completed"
+        },
+        {
+          "time": "13:02:40",
+          "stage": "gitleaks",
+          "status": "failed",
+          "message": "Gitleaks scan failed"
+        },
+        {
+          "time": null,
+          "stage": "trivy",
+          "status": "skipped",
+          "message": "Trivy scan skipped (earlier stage did not pass)"
+        },
+        {
+          "time": null,
+          "stage": "policy",
+          "status": "skipped",
+          "message": "Policy check skipped (earlier stage did not pass)"
+        }
+      ]
+    }
+  ]
+}

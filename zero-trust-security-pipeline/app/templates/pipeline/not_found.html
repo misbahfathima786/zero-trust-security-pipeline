@@ -1,0 +1,30 @@
+{% extends "layouts/app_shell.html" %}
+{% from "components/ui.html" import empty_state %}
+
+{% set active_nav = "pipeline" %}
+
+{% block title %}Build not found | SecureBuild{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pipeline.css') }}">
+{% endblock %}
+
+{% block page_header %}
+    <h1>{{ "Build not found" if run_id else "No builds yet" }}</h1>
+    <p>{{ "We could not find that build." if run_id else "Builds will appear here after the pipeline has run." }}</p>
+{% endblock %}
+
+{% block page_content %}
+<section class="card">
+    {% if run_id %}
+        {% call empty_state("Build #" ~ (run_id|truncate(20, true, "…")) ~ " does not exist", "Check the build number, or open the latest build.", "x-circle") %}
+            <div class="empty-state__actions">
+                <a class="btn btn--primary" href="{{ url_for('pipeline.latest') }}">View latest build</a>
+                <a class="btn btn--secondary" href="{{ url_for('scans.index') }}">Scan results</a>
+            </div>
+        {% endcall %}
+    {% else %}
+        {% call empty_state("No builds yet", "Push to the repository to start the first pipeline run.", "inbox") %}{% endcall %}
+    {% endif %}
+</section>
+{% endblock %}

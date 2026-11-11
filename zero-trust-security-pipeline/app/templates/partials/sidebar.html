@@ -1,0 +1,49 @@
+{#- Shared sidebar. Set `active_nav` in the page template to highlight a link.
+    Adding a page = add one tuple to nav_items. -#}
+{% from "components/icons.html" import icon %}
+
+{% set product_name = "SecureBuild" %}
+{% set product_tagline = "Software Supply Chain Security" %}
+
+{#       key         label               icon         endpoint (None = not built yet) #}
+{% set nav_items = [
+    ("dashboard", "Dashboard",        "dashboard", "dashboard.index"),
+    ("pipeline",  "Pipeline",         "pipeline",  "pipeline.latest"),
+    ("scans",     "Scan Results",     "scan",      "scans.index"),
+    ("sbom",      "SBOM",             "sbom",      None),
+    ("history",   "Security History", "history",   None),
+    ("policy",    "Policy",           "policy",    None),
+    ("reports",   "Reports",          "reports",   None),
+    ("chatbot",   "Chatbot",          "chatbot",   None),
+    ("settings",  "Settings",         "settings",  None)
+] %}
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h2>{{ icon("shield", 24, "sidebar-brand__logo") }}{{ product_name }}</h2>
+        <span>{{ product_tagline|upper }}</span>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main">
+        {% for key, label, icon_name, endpoint in nav_items %}
+            {% if endpoint %}
+            <a href="{{ url_for(endpoint) }}"
+               class="nav-item{{ ' active' if active_nav == key else '' }}"
+               {% if active_nav == key %}aria-current="page"{% endif %}>
+                {{ icon(icon_name, 19) }}{{ label }}
+            </a>
+            {% else %}
+            <a href="#" class="nav-item placeholder-link">
+                {{ icon(icon_name, 19) }}{{ label }}
+            </a>
+            {% endif %}
+        {% endfor %}
+    </nav>
+
+    <div class="sidebar-bottom">
+        <form method="POST" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+</aside>

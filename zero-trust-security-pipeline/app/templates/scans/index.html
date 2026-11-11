@@ -1,0 +1,137 @@
+{% extends "layouts/app_shell.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import status_badge, summary_card, tab_list, empty_state %}
+{% from "scans/_detail.html" import scan_detail %}
+
+{% set active_nav = "scans" %}
+
+{% block title %}Scan Results | SecureBuild{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/scans.css') }}">
+{% endblock %}
+
+{% block page_header %}
+    <h1>Scan Results</h1>
+    <p>Detailed results from security scans</p>
+{% endblock %}
+
+{% block page_content %}
+
+{% if is_sample %}
+<div class="notice notice--info" role="note">
+    <strong>Sample data.</strong> These results are placeholders, not output from a real pipeline run.
+</div>
+{% endif %}
+
+{% if not scans %}
+    <section class="card">
+        {% call empty_state("No scans yet", "Scan results will appear here after the pipeline has run.") %}{% endcall %}
+    </section>
+{% else %}
+
+<div data-tabs data-scan-page data-summaries="{{ summaries|tojson|forceescape }}">
+
+    {{ tab_list([
+        {"id": "all",      "label": "All Scans",             "panel": "scan-panel", "filter": "all"},
+        {"id": "gitleaks", "label": "Secrets (Gitleaks)",    "panel": "scan-panel", "filter": "gitleaks"},
+        {"id": "trivy",    "label": "Vulnerabilities (Trivy)", "panel": "scan-panel", "filter": "trivy"},
+        {"id": "policy",   "label": "Policy Checks",         "panel": "scan-panel", "filter": "policy"}
+    ], "Scan type") }}
+
+    <div class="filter-bar">
+        <label for="status-filter">Filter by:</label>
+        <select id="status-filter" class="select">
+            <option value="all">All Statuses</option>
+            <option value="passed">Passed</option>
+            <option value="failed">Failed</option>
+            <option value="warning">Warning</option>
+            <option value="running">Running</option>
+            <option value="pending">Pending</option>
+            <option value="blocked">Blocked / Error</option>
+        </select>
+    </div>
+
+    <section class="card" aria-labelledby="summary-title">
+        <div class="card__head">
+            <h2 id="summary-title">Scan Summary</h2>
+            {# Security History is a teammate's page; keep the placeholder behaviour until it exists. #}
+            <a href="#" class="link-arrow placeholder-link">View Trend {{ icon("arrow-right", 15) }}</a>
+        </div>
+        <p class="card__hint">Totals follow the selected tab and ignore the status filter.</p>
+
+        <div class="summary-grid">
+            {{ summary_card("Total Scans",     summaries.all.total,   "list",           "neutral", "total") }}
+            {{ summary_card("Passed",          summaries.all.passed,  "check-circle",   "passed",  "passed") }}
+            {{ summary_card("Failed",          summaries.all.failed,  "x-circle",       "failed",  "failed") }}
+            {{ summary_card("Warnings",        summaries.all.warning, "alert-triangle", "warning", "warning") }}
+            {{ summary_card("Blocked / Error", summaries.all.blocked, "blocked",        "blocked", "blocked") }}
+        </div>
+    </section>
+
+    <section class="card" id="scan-panel" role="tabpanel" aria-labelledby="tab-all">
+        <p class="sr-only" id="scan-live" aria-live="polite"></p>
+
+        <div class="table-wrap" id="scan-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date &amp; Time (UTC)</th>
+                        <th scope="col">Scan Type</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Details</th>
+                        <th scope="col"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for s in scans %}
+                    <tr data-type="{{ s.type }}" data-status="{{ s.status }}">
+                        <td>
+                            <time datetime="{{ s.started_at }}">{{ s.started_at|format_datetime }}</time>
+                            <a class="cell-sub" href="{{ url_for('pipeline.detail', run_id=s.run_id) }}">Build #{{ s.run_id }} · {{ s.branch }}</a>
+                        </td>
+                        <td><span class="scan-type">{{ icon("gitleaks" if s.type == "gitleaks" else ("trivy" if s.type == "trivy" else "shield"), 16) }}{{ s.type_label }}</span></td>
+                        <td>{{ status_badge(s.status) }}</td>
+                        <td>{{ s.details }}</td>
+                        <td class="cell-action">
+                            <button type="button" class="btn btn--link" data-detail="detail-{{ s.id }}" aria-haspopup="dialog">
+                                View<span class="sr-only"> {{ s.type_label }} details for build #{{ s.run_id }}</span>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="scan-empty" hidden>
+            {% call empty_state("No scans match these filters", "Try a different status or scan type.") %}
+                <button type="button" class="btn btn--secondary" id="scan-reset">Reset filters</button>
+            {% endcall %}
+        </div>
+    </section>
+
+    {# One inert template per scan; scans.js copies it into the dialog on "View". #}
+    {% for s in scans %}
+    <template id="detail-{{ s.id }}" data-title="{{ s.type_label }} · Build #{{ s.run_id }}">
+        {{ scan_detail(s) }}
+    </template>
+    {% endfor %}
+
+    <dialog class="modal" id="scan-dialog" aria-labelledby="scan-dialog-title">
+        <div class="modal__head">
+            <h2 id="scan-dialog-title"></h2>
+            <button type="button" class="btn btn--icon" data-close aria-label="Close details">{{ icon("close", 18) }}</button>
+        </div>
+        <div class="modal__body" id="scan-dialog-body"></div>
+    </dialog>
+
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block page_js %}
+    <script src="{{ url_for('static', filename='js/tabs.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scans.js') }}"></script>
+{% endblock %}

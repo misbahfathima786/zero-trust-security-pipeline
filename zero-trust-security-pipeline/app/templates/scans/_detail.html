@@ -1,0 +1,100 @@
+{#- Content of the "View" dialog for one scan row. Everything is auto-escaped.
+    Secret values are never printed: the redacted marker is a constant here,
+    whatever the data contains. -#}
+{% from "components/ui.html" import status_badge, severity_badge %}
+
+{% macro scan_detail(scan) -%}
+{%- set run = scan.run -%}
+<dl class="detail-facts">
+    <div><dt>Build</dt><dd><a href="{{ url_for('pipeline.detail', run_id=run.run_id) }}">Build #{{ run.run_id }}</a></dd></div>
+    <div><dt>Branch</dt><dd>{{ run.branch }}</dd></div>
+    <div><dt>Commit</dt><dd><code>{{ run.commit }}</code></dd></div>
+    <div><dt>Started</dt><dd>{{ scan.started_at|format_datetime }} UTC</dd></div>
+    <div><dt>Status</dt><dd>{{ status_badge(scan.status) }}</dd></div>
+</dl>
+
+{% if scan.status == 'blocked' %}
+    <div class="notice notice--blocked" role="alert">
+        <strong>This scan did not complete.</strong>
+        The result is unavailable and must not be treated as clean. Re-run the pipeline once the scanner problem is fixed.
+    </div>
+
+{% elif scan.status in ('running', 'pending') %}
+    <p class="detail-note">{{ scan.details }}. Results will appear here when the scan finishes.</p>
+
+{% elif scan.type == 'gitleaks' %}
+    {% set findings = run.secrets.findings %}
+    {% if findings %}
+    <h3 class="detail-heading">Potential secrets ({{ findings|length }})</h3>
+    <div class="table-wrap">
+        <table class="data-table data-table--compact">
+            <thead><tr><th scope="col">Rule</th><th scope="col">File</th><th scope="col">Line</th><th scope="col">Value</th></tr></thead>
+            <tbody>
+            {% for f in findings %}
+                <tr>
+                    <td>{{ f.rule }}</td>
+                    <td><code>{{ f.file }}</code></td>
+                    <td>{{ f.line }}</td>
+                    <td><span class="redacted">[REDACTED]</span></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="detail-note">Secret values are never displayed. Rotate any real credential that was committed.</p>
+    {% elif run.secrets.count == 0 %}
+    <p class="detail-note">No secrets were found in this run.</p>
+    {% else %}
+    <div class="notice notice--blocked" role="alert">Result unavailable. This is not a clean result.</div>
+    {% endif %}
+
+{% elif scan.type == 'trivy' %}
+    {% set counts = run.vulnerabilities.counts %}
+    {% if counts is none %}
+    <div class="notice notice--blocked" role="alert">Result unavailable. This is not a clean result.</div>
+    {% else %}
+    <ul class="sev-summary" aria-label="Findings by severity">
+        {% for sev in ['critical', 'high', 'medium', 'low', 'info'] %}
+        <li>{{ severity_badge(sev) }} <strong>{{ counts[sev] }}</strong></li>
+        {% endfor %}
+    </ul>
+    {% if run.vulnerabilities.findings %}
+    <div class="table-wrap">
+        <table class="data-table data-table--compact">
+            <thead><tr><th scope="col">Package</th><th scope="col">Version</th><th scope="col">Severity</th><th scope="col">Fixed version</th></tr></thead>
+            <tbody>
+            {% for v in run.vulnerabilities.findings %}
+                <tr>
+                    <td>{{ v.package }}<span class="cell-sub">{{ v.vuln_id }}</span></td>
+                    <td>{{ v.version }}</td>
+                    <td>{{ severity_badge(v.severity) }}</td>
+                    <td>{{ v.fixed_version or 'No fix available' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="detail-note">No vulnerabilities were found in this run.</p>
+    {% endif %}
+    {% endif %}
+
+{% elif scan.type == 'policy' %}
+    <h3 class="detail-heading">Rules evaluated</h3>
+    <div class="table-wrap">
+        <table class="data-table data-table--compact">
+            <thead><tr><th scope="col">Rule</th><th scope="col">Result</th><th scope="col">Detail</th></tr></thead>
+            <tbody>
+            {% for r in run.policy.rules %}
+                <tr>
+                    <td>{{ r.name }}</td>
+                    <td>{{ status_badge(r.result) }}</td>
+                    <td>{{ r.detail }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="detail-note">Overall policy result: <strong>{{ scan.status|capitalize }}</strong></p>
+{% endif %}
+{%- endmacro %}
