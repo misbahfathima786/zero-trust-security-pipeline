@@ -17,9 +17,9 @@ from flask_login import (
     current_user
 )
 
-from extensions import db
-from models.user import User
-from forms import LoginForm, SignupForm, ForgotPasswordForm
+from app.extensions import db
+from app.models.user import User
+from app.forms import LoginForm, SignupForm, ForgotPasswordForm
 
 
 auth_bp = Blueprint("auth", __name__)

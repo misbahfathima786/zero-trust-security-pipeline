@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
 
-from services import runs as run_service
+from app.services import runs as run_service
 
 scans_bp = Blueprint("scans", __name__)
 

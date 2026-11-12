@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, render_template, url_for
 from flask_login import login_required
 
-from services import runs as run_service
+from app.services import runs as run_service
 
 pipeline_bp = Blueprint("pipeline", __name__)
 

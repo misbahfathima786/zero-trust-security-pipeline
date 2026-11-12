@@ -1,0 +1,314 @@
+/* ========================================================
+   PAGE 7: SECURITY HISTORY & TRENDS
+   ======================================================== */
+
+.page-title-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.select--range {
+    min-width: 160px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* History Analytics Grid */
+.history-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 980px) {
+    .history-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Chart Card */
+.chart-card {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.chart-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.legend-item--critical .legend-dot { background: #c72f40; }
+.legend-item--high .legend-dot     { background: #c7640f; }
+.legend-item--medium .legend-dot   { background: #d49300; }
+.legend-item--low .legend-dot      { background: #1b6b49; }
+
+/* Chart Container & SVG */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    min-height: 260px;
+}
+
+.trend-chart-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.chart-grid-line {
+    stroke: #eeeaf6;
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+}
+
+.chart-axis-text {
+    font-size: 11.5px;
+    fill: var(--text-secondary);
+    font-family: inherit;
+}
+
+.chart-line {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-width 0.15s;
+}
+
+.chart-line--critical { stroke: #c72f40; }
+.chart-line--high     { stroke: #c7640f; }
+.chart-line--medium   { stroke: #d49300; }
+.chart-line--low      { stroke: #1b6b49; }
+
+.chart-point {
+    cursor: pointer;
+    transition: r 0.15s, stroke-width 0.15s;
+}
+
+.chart-point:hover {
+    r: 6 !important;
+    stroke-width: 3 !important;
+}
+
+/* Tooltip */
+.chart-tooltip {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+    background: #1e1932;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    transform: translate(-50%, -115%);
+    transition: opacity 0.1s ease;
+    white-space: nowrap;
+}
+
+.chart-tooltip strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 3px;
+}
+
+.tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 2px;
+}
+
+/* Risk Card */
+.risk-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.risk-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.risk-badge--down {
+    background: #e3f4ec;
+    color: #1b6b49;
+}
+
+.risk-badge--up {
+    background: #fde8eb;
+    color: #c72f40;
+}
+
+.risk-badge--neutral {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.risk-stats-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #faf9fd;
+    padding: 16px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+}
+
+.risk-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+}
+
+.risk-stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+}
+
+.risk-stat-label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.risk-stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 2px;
+    line-height: 1.1;
+}
+
+.risk-stat-number--down { color: #1b6b49; }
+.risk-stat-number--up { color: #c72f40; }
+.risk-stat-number--neutral { color: var(--primary); }
+
+.risk-stat-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+}
+
+.risk-explanation {
+    background: #fdfcff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.risk-footer-score {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.risk-footer-score strong {
+    color: var(--text-primary);
+}
+
+/* Recent Builds Table */
+.cell-num {
+    text-align: center;
+    font-weight: 600;
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.count-badge--critical { background: #fde8eb; color: #c72f40; }
+.count-badge--high     { background: #fdf1d6; color: #c7640f; }
+.count-badge--medium   { background: #fef8e7; color: #99700a; }
+.count-badge--low      { background: #e3f4ec; color: #1b6b49; }
+
+.build-link strong {
+    font-size: 14px;
+    color: var(--primary);
+}
+
+.build-link:hover strong {
+    text-decoration: underline;
+}

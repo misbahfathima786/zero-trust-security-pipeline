@@ -1,0 +1,208 @@
+{% extends "layouts/app_shell.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import empty_state %}
+
+{% set active_nav = "history" %}
+
+{% block title %}Security History &amp; Trends | SecureBuild{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}">
+{% endblock %}
+
+{% block page_header %}
+    <div class="page-title-wrap">
+        <div>
+            <h1>Security History &amp; Trends</h1>
+            <p>Track your security posture over time.</p>
+        </div>
+        <div class="page-header-actions">
+            <label for="history-range-select" class="sr-only">Date Range</label>
+            <div class="range-selector">
+                <select id="history-range-select" class="select select--range" aria-label="Select history date range">
+                    <option value="7d" {% if range_key == '7d' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30d" {% if range_key == '30d' or not range_key %}selected{% endif %}>Last 30 Days</option>
+                    <option value="90d" {% if range_key == '90d' %}selected{% endif %}>Last 90 Days</option>
+                    <option value="custom" {% if range_key == 'custom' %}selected{% endif %}>Custom Range</option>
+                </select>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+
+{% if not history.has_data %}
+    <section class="card">
+        {% call empty_state("Insufficient Historical Scan Data", "Complete more pipeline builds to view security posture trends across builds.", "history") %}{% endcall %}
+    </section>
+{% else %}
+
+<!-- Main Analytics Grid -->
+<div class="history-grid">
+
+    <!-- Findings Trend Chart Card -->
+    <section class="card chart-card" aria-labelledby="findings-trend-title">
+        <div class="chart-header">
+            <div>
+                <h2 id="findings-trend-title" class="chart-title">Findings Trend</h2>
+                <p class="chart-subtitle">Vulnerability findings across completed builds</p>
+            </div>
+            
+            <!-- Severity Legend -->
+            <div class="chart-legend" aria-label="Chart series legend">
+                <span class="legend-item legend-item--critical">
+                    <span class="legend-dot"></span>Critical
+                </span>
+                <span class="legend-item legend-item--high">
+                    <span class="legend-dot"></span>High
+                </span>
+                <span class="legend-item legend-item--medium">
+                    <span class="legend-dot"></span>Medium
+                </span>
+                <span class="legend-item legend-item--low">
+                    <span class="legend-dot"></span>Low
+                </span>
+            </div>
+        </div>
+
+        <div class="chart-container" id="chart-container" 
+             data-history="{{ history|tojson|forceescape }}">
+            <!-- Rendered by history.js via interactive SVG -->
+            <svg id="trend-svg" class="trend-chart-svg" viewBox="0 0 760 300" preserveAspectRatio="none" role="img" aria-label="Vulnerabilities trend chart">
+                <!-- Fallback / dynamic SVG content -->
+            </svg>
+            <div id="chart-tooltip" class="chart-tooltip" hidden></div>
+        </div>
+    </section>
+
+    <!-- Risk Trend Metric Card -->
+    <section class="card risk-card" aria-labelledby="risk-trend-title">
+        <div class="risk-card__header">
+            <h2 id="risk-trend-title" class="card-title">Risk Trend</h2>
+            <span class="risk-badge risk-badge--{{ history.risk_metric.direction }}">
+                {% if history.risk_metric.direction == 'down' %}
+                    {{ icon("check-circle", 15) }} Decreasing Risk
+                {% elif history.risk_metric.direction == 'up' %}
+                    {{ icon("alert-triangle", 15) }} Risk Increased
+                {% else %}
+                    {{ icon("shield", 15) }} Risk Stable
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="risk-stats-row">
+            <div class="risk-stat-item">
+                <span class="risk-stat-label">Current Avg</span>
+                <span class="risk-stat-number" id="risk-current">{{ history.risk_metric.current_findings }}</span>
+                <span class="risk-stat-sub">findings / build</span>
+            </div>
+            <div class="risk-stat-divider" aria-hidden="true"></div>
+            <div class="risk-stat-item">
+                <span class="risk-stat-label">Previous Period</span>
+                <span class="risk-stat-number" id="risk-previous">{{ history.risk_metric.previous_findings }}</span>
+                <span class="risk-stat-sub">findings / build</span>
+            </div>
+            <div class="risk-stat-divider" aria-hidden="true"></div>
+            <div class="risk-stat-item">
+                <span class="risk-stat-label">Change</span>
+                <span class="risk-stat-number risk-stat-number--{{ history.risk_metric.direction }}" id="risk-change">
+                    {% if history.risk_metric.delta > 0 %}+{% endif %}{{ history.risk_metric.percent_change }}%
+                </span>
+                <span class="risk-stat-sub">period delta</span>
+            </div>
+        </div>
+
+        <div class="risk-explanation">
+            <p id="risk-status-text">{{ history.risk_metric.status_text }}</p>
+        </div>
+
+        <div class="risk-footer-score">
+            <span>Weighted Risk Index: <strong>{{ history.risk_metric.weighted_score }}</strong></span>
+            <small class="text-secondary">(Critical &times; 10 + High &times; 5 + Med &times; 2 + Low &times; 1)</small>
+        </div>
+    </section>
+
+</div>
+
+<!-- Recent Builds Table -->
+<section class="card recent-builds-card" aria-labelledby="recent-builds-title">
+    <div class="card__head">
+        <div>
+            <h2 id="recent-builds-title">Recent Builds</h2>
+            <p class="card__hint">Historical vulnerability breakdown for completed pipeline runs.</p>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data-table" id="history-builds-table">
+            <thead>
+                <tr>
+                    <th scope="col">Build #</th>
+                    <th scope="col">Date</th>
+                    <th scope="col" class="cell-num">Critical</th>
+                    <th scope="col" class="cell-num">High</th>
+                    <th scope="col" class="cell-num">Medium</th>
+                    <th scope="col" class="cell-num">Low</th>
+                    <th scope="col" class="cell-action"><span class="sr-only">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in history.recent_builds %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('pipeline.detail', run_id=b.run_id) }}" class="build-link">
+                            <strong>#{{ b.run_id }}</strong>
+                            <span class="cell-sub">{{ b.branch }} ({{ b.commit }})</span>
+                        </a>
+                    </td>
+                    <td>
+                        <time datetime="{{ b.timestamp }}">{{ b.full_date_label }}</time>
+                    </td>
+                    <td class="cell-num">
+                        {% if b.critical is not none %}
+                            <span class="count-badge count-badge--critical">{{ b.critical }}</span>
+                        {% else %}
+                            <span class="text-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="cell-num">
+                        {% if b.high is not none %}
+                            <span class="count-badge count-badge--high">{{ b.high }}</span>
+                        {% else %}
+                            <span class="text-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="cell-num">
+                        {% if b.medium is not none %}
+                            <span class="count-badge count-badge--medium">{{ b.medium }}</span>
+                        {% else %}
+                            <span class="text-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="cell-num">
+                        {% if b.low is not none %}
+                            <span class="count-badge count-badge--low">{{ b.low }}</span>
+                        {% else %}
+                            <span class="text-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="cell-action">
+                        <a href="{{ url_for('pipeline.detail', run_id=b.run_id) }}" class="btn btn--link">
+                            View Build {{ icon("arrow-right", 14) }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endif %}
+
+{% endblock %}
+
+{% block page_js %}
+    <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

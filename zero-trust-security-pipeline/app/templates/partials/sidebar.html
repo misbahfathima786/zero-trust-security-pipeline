@@ -5,17 +5,18 @@
 {% set product_name = "SecureBuild" %}
 {% set product_tagline = "Software Supply Chain Security" %}
 
-{#       key         label               icon         endpoint (None = not built yet) #}
+{#       key               label                    icon         endpoint (None = not built yet) #}
 {% set nav_items = [
-    ("dashboard", "Dashboard",        "dashboard", "dashboard.index"),
-    ("pipeline",  "Pipeline",         "pipeline",  "pipeline.latest"),
-    ("scans",     "Scan Results",     "scan",      "scans.index"),
-    ("sbom",      "SBOM",             "sbom",      None),
-    ("history",   "Security History", "history",   None),
-    ("policy",    "Policy",           "policy",    None),
-    ("reports",   "Reports",          "reports",   None),
-    ("chatbot",   "Chatbot",          "chatbot",   None),
-    ("settings",  "Settings",         "settings",  None)
+    ("dashboard",       "Dashboard",             "dashboard", "dashboard.index"),
+    ("pipeline",        "Pipeline",              "pipeline",  "pipeline.latest"),
+    ("scans",           "Scan Results",          "scan",      "scans.index"),
+    ("vulnerabilities", "Vulnerability Results", "trivy",     "vulnerabilities.index"),
+    ("sbom",            "SBOM",                  "sbom",      "sbom.index"),
+    ("history",         "Security History",      "history",   "history.index"),
+    ("policy",          "Policy",                "policy",    None),
+    ("reports",         "Reports",               "reports",   None),
+    ("chatbot",         "Chatbot",               "chatbot",   None),
+    ("settings",        "Settings",              "settings",  None)
 ] %}
 
 <aside class="sidebar">

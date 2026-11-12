@@ -1,3 +1,4 @@
+
 import os
 from pathlib import Path
 
@@ -10,18 +11,17 @@ load_dotenv(PROJECT_ROOT / ".env")
 from flask import Flask, redirect, url_for
 from flask_login import current_user
 
-from config import Config
-from extensions import db, login_manager, csrf
-from models.user import User
-from routes.auth import auth_bp
-from routes.dashboard import dashboard_bp
-from routes.pipeline import pipeline_bp
-from routes.scans import scans_bp
-from template_helpers import register as register_template_helpers
-
-# Load environment variables from the repository root.
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-load_dotenv(PROJECT_ROOT / ".env")
+from app.config import Config
+from app.extensions import db, login_manager, csrf
+from app.models.user import User
+from app.routes.auth import auth_bp
+from app.routes.dashboard import dashboard_bp
+from app.routes.pipeline import pipeline_bp
+from app.routes.scans import scans_bp
+from app.routes.vulnerabilities import vulnerabilities_bp
+from app.routes.sbom import sbom_bp
+from app.routes.history import history_bp
+from app.template_helpers import register as register_template_helpers
 
 
 def create_app():
@@ -54,7 +54,16 @@ def create_app():
     app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
     app.register_blueprint(pipeline_bp, url_prefix="/pipeline")
     app.register_blueprint(scans_bp, url_prefix="/scans")
+    app.register_blueprint(vulnerabilities_bp, url_prefix="/vulnerabilities")
+    app.register_blueprint(sbom_bp, url_prefix="/sbom")
+    app.register_blueprint(history_bp, url_prefix="/history")
     register_template_helpers(app)
+
+    # Aliases for vulnerability scan routes.
+    @app.route("/scans/trivy")
+    @app.route("/scans/vulnerabilities")
+    def scans_trivy_alias():
+        return redirect(url_for("vulnerabilities.index"))
 
     @app.route("/")
     def home():

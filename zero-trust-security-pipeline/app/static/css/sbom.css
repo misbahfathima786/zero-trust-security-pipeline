@@ -1,0 +1,224 @@
+/* ========================================================
+   PAGE 6: SOFTWARE BILL OF MATERIALS (SBOM)
+   ======================================================== */
+
+.page-title-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+/* 3 Summary Cards */
+.sbom-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 768px) {
+    .sbom-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sbom-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(49, 35, 90, 0.03);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.sbom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.sbom-card__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.sbom-card__icon--direct {
+    background: #e3f4ec;
+    color: #1b6b49;
+}
+
+.sbom-card__icon--transitive {
+    background: #e6efff;
+    color: #1d4fa3;
+}
+
+.sbom-card__value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-primary);
+}
+
+.sbom-card__label {
+    display: block;
+    margin-top: 3px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Toolbar */
+.sbom-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.sbom-search {
+    flex: 1;
+    min-width: 250px;
+    max-width: 380px;
+}
+
+.sbom-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Badges & Tags */
+.license-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #f1eff8;
+    color: var(--text-primary);
+    font-size: 12.5px;
+    font-weight: 500;
+    border: 1px solid #e2deee;
+}
+
+.dep-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.dep-badge--direct {
+    background: #e3f4ec;
+    color: #1b6b49;
+}
+
+.dep-badge--transitive {
+    background: #f3f2f7;
+    color: #6b6785;
+}
+
+.cell-component strong {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.sbom-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.sbom-format-badge {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+/* Component Modal Details */
+.comp-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.comp-detail-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.comp-facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    background: #faf9fd;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.comp-facts dt {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.comp-facts dd {
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+.comp-section {
+    margin-bottom: 18px;
+}
+
+.comp-section h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.comp-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.comp-standard-info {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    background: #f7f6fb;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary);
+}

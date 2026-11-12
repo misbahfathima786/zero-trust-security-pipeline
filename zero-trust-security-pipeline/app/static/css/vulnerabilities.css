@@ -1,0 +1,278 @@
+/* ========================================================
+   PAGE 5: TRIVY VULNERABILITY SCAN RESULTS
+   ======================================================== */
+
+.page-title-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.vuln-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 22px;
+}
+
+.vuln-tabs .tabs__tab {
+    padding: 10px 18px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vuln-tabs .tabs__tab.active,
+.vuln-tabs .tabs__tab[aria-selected="true"] {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+/* 5 Severity Summary Cards */
+.vuln-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 900px) {
+    .vuln-summary-grid {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+}
+
+.vuln-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(49, 35, 90, 0.03);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.vuln-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.vuln-card__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.vuln-card__content {
+    display: flex;
+    flex-direction: column;
+}
+
+.vuln-card__label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.vuln-card__value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+
+/* Specific Card Severities */
+.vuln-card--critical { border-left: 4px solid #c72f40; }
+.vuln-card--critical .vuln-card__dot { background: #c72f40; }
+.vuln-card--critical .vuln-card__value { color: #c72f40; }
+
+.vuln-card--high { border-left: 4px solid #c7640f; }
+.vuln-card--high .vuln-card__dot { background: #c7640f; }
+.vuln-card--high .vuln-card__value { color: #c7640f; }
+
+.vuln-card--medium { border-left: 4px solid #d49300; }
+.vuln-card--medium .vuln-card__dot { background: #d49300; }
+.vuln-card--medium .vuln-card__value { color: #99700a; }
+
+.vuln-card--low { border-left: 4px solid #1b6b49; }
+.vuln-card--low .vuln-card__dot { background: #1b6b49; }
+.vuln-card--low .vuln-card__value { color: #1b6b49; }
+
+.vuln-card--info { border-left: 4px solid #1d4fa3; }
+.vuln-card--info .vuln-card__dot { background: #1d4fa3; }
+.vuln-card--info .vuln-card__value { color: #1d4fa3; }
+
+/* Toolbar */
+.vuln-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.vuln-search {
+    flex: 1;
+    min-width: 240px;
+    max-width: 380px;
+}
+
+.input-text {
+    width: 100%;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: border-color 0.15s;
+}
+
+.input-text:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.fixed-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #e3f4ec;
+    color: #1b6b49;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.no-fix {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-style: italic;
+}
+
+.cell-pkg strong {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.vuln-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Modal details styling */
+.vuln-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.vuln-detail-pkg {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.vuln-facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    background: #faf9fd;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.vuln-facts dt {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.vuln-facts dd {
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+.vuln-section {
+    margin-bottom: 20px;
+}
+
+.vuln-section h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.vuln-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.vuln-remediation-box {
+    background: #edf8f3;
+    border-left: 4px solid var(--success);
+    padding: 14px 16px;
+    border-radius: 8px;
+}
+
+.vuln-remediation-box h3 {
+    color: var(--success);
+}
+
+.vuln-remediation-box p {
+    font-size: 14px;
+    font-weight: 500;
+    color: #165b3c;
+}
+
+.vuln-refs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.vuln-refs-list li {
+    padding: 4px 0;
+}
+
+.vuln-refs-list a {
+    color: var(--primary);
+    font-size: 13px;
+    word-break: break-all;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.vuln-refs-list a:hover {
+    text-decoration: underline;
+}
