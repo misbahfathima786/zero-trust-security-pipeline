@@ -7,17 +7,17 @@ from pathlib import Path
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-real")
 os.environ["DATABASE_URL"] = "sqlite://"
 
-APP_DIR = Path(__file__).resolve().parents[1] / "app"
-sys.path.insert(0, str(APP_DIR))
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_DIR))
 
 import pytest  # noqa: E402
 
 
 @pytest.fixture()
 def app():
-    from app import app as flask_app
-    from extensions import db
-    from models.user import User
+    from app.app import app as flask_app
+    from app.extensions import db
+    from app.models.user import User
 
     flask_app.config.update(TESTING=True, WTF_CSRF_ENABLED=False)
     with flask_app.app_context():

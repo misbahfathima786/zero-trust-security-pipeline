@@ -1,10 +1,10 @@
 """Comprehensive tests for Pages 5, 6, and 7 and regression verification for Pages 1-4."""
 import json
 import pytest
-from services import runs as run_service
-from services import vulnerabilities as vuln_service
-from services import sbom as sbom_service
-from services import history as history_service
+from app.services import runs as run_service
+from app.services import vulnerabilities as vuln_service
+from app.services import sbom as sbom_service
+from app.services import history as history_service
 
 
 # -------------------------------------------------------------------------

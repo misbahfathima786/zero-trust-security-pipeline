@@ -5,15 +5,18 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables before importing Config.
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-load_dotenv(PROJECT_ROOT / ".env")
+for _parent in Path(__file__).resolve().parents:
+    _env = _parent / ".env"
+    if _env.is_file():
+        load_dotenv(_env)
+        break
 
 from flask import Flask, redirect, url_for
 from flask_login import current_user
 
 from app.config import Config
 from app.extensions import db, login_manager, csrf
-from app.models.user import User
+from app.models import User, Project, ScanRun
 from app.routes.auth import auth_bp
 from app.routes.dashboard import dashboard_bp
 from app.routes.pipeline import pipeline_bp

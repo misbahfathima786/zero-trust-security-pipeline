@@ -553,27 +553,61 @@ def get_sbom_data(run_id=None):
                         "format": "CycloneDX 1.5 JSON",
                     }
 
-    # Match latest run from run_service
+    # Match requested run or latest run from run_service
     run = run_service.get_run(run_id) if run_id else run_service.latest_run()
-    if run is None:
-        run = run_service.list_runs()[0] if run_service.list_runs() else {}
+    if run and run.get("sbom_components"):
+        components = run["sbom_components"]
+        direct_count = sum(1 for c in components if c.get("type") == "Direct")
+        transitive_count = sum(1 for c in components if c.get("type") == "Transitive")
+        licenses = sorted(list({c.get("license", "Unknown") for c in components}))
+        return {
+            "components": components,
+            "total_count": len(components),
+            "direct_count": direct_count,
+            "transitive_count": transitive_count,
+            "licenses": licenses,
+            "run_id": run.get("run_id"),
+            "commit": run.get("commit", "upload"),
+            "branch": run.get("branch", "main"),
+            "timestamp": run.get("timestamp", datetime.now(timezone.utc).isoformat()),
+            "is_generated": True,
+            "format": "CycloneDX 1.5 JSON",
+        }
 
-    components = DEFAULT_COMPONENTS
-    direct_count = sum(1 for c in components if c["type"] == "Direct")
-    transitive_count = sum(1 for c in components if c["type"] == "Transitive")
-    licenses = sorted(list({c["license"] for c in components}))
+    # If sample data is active (e.g. unit testing), use DEFAULT_COMPONENTS
+    if run_service.is_sample_data():
+        if run is None:
+            run = run_service.list_runs()[0] if run_service.list_runs() else {}
+        components = DEFAULT_COMPONENTS
+        direct_count = sum(1 for c in components if c["type"] == "Direct")
+        transitive_count = sum(1 for c in components if c["type"] == "Transitive")
+        licenses = sorted(list({c["license"] for c in components}))
+        return {
+            "components": components,
+            "total_count": len(components),
+            "direct_count": direct_count,
+            "transitive_count": transitive_count,
+            "licenses": licenses,
+            "run_id": run.get("run_id", 42),
+            "commit": run.get("commit", "a1b2c3d"),
+            "branch": run.get("branch", "main"),
+            "timestamp": run.get("timestamp", datetime.now(timezone.utc).isoformat()),
+            "is_generated": True,
+            "format": "CycloneDX 1.5 JSON",
+        }
 
+    # Live customer data with no SBOM: return empty structure
     return {
-        "components": components,
-        "total_count": len(components),
-        "direct_count": direct_count,
-        "transitive_count": transitive_count,
-        "licenses": licenses,
-        "run_id": run.get("run_id", 42),
-        "commit": run.get("commit", "a1b2c3d"),
-        "branch": run.get("branch", "main"),
-        "timestamp": run.get("timestamp", datetime.now(timezone.utc).isoformat()),
-        "is_generated": True,
+        "components": [],
+        "total_count": 0,
+        "direct_count": 0,
+        "transitive_count": 0,
+        "licenses": [],
+        "run_id": run.get("run_id") if run else None,
+        "commit": run.get("commit", "-") if run else "-",
+        "branch": run.get("branch", "-") if run else "-",
+        "timestamp": run.get("timestamp", "-") if run else "-",
+        "is_generated": False,
         "format": "CycloneDX 1.5 JSON",
     }
 

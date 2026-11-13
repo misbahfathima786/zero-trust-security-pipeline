@@ -100,20 +100,20 @@ def _enrich_finding(raw_finding):
     vuln_id = raw_finding.get("vuln_id", "VULN-UNKNOWN")
     lookup = VULN_DETAILS_LOOKUP.get(vuln_id, {})
     
-    cve = lookup.get("cve", vuln_id if vuln_id.startswith("CVE-") else vuln_id)
-    title = lookup.get("title", f"Vulnerability in {raw_finding.get('package', 'component')}")
-    description = lookup.get(
+    cve = raw_finding.get("cve") or lookup.get("cve", vuln_id if vuln_id.startswith("CVE-") else vuln_id)
+    title = raw_finding.get("title") or lookup.get("title", f"Vulnerability in {raw_finding.get('package', 'component')}")
+    description = raw_finding.get("description") or lookup.get(
         "description",
         f"A security vulnerability ({cve}) was detected in package {raw_finding.get('package')} "
         f"version {raw_finding.get('version')}."
     )
-    references = lookup.get("references", [
+    references = raw_finding.get("references") or lookup.get("references", [
         f"https://nvd.nist.gov/vuln/detail/{cve}" if cve.startswith("CVE-") else "https://trivy.dev"
     ])
-    fixed_ver = raw_finding.get("fixed_version")
-    remediation = lookup.get(
+    fixed_ver = raw_finding.get("fixed_version") or lookup.get("fixed_version")
+    remediation = raw_finding.get("remediation") or lookup.get(
         "remediation",
-        f"Upgrade {raw_finding.get('package')} to {fixed_ver}." if fixed_ver else "No direct patch available. Review dependency requirements."
+        f"Upgrade {raw_finding.get('package')} to {fixed_ver}." if fixed_ver and fixed_ver != "No fix available" else "No direct patch available. Review dependency requirements."
     )
 
     return {
@@ -127,7 +127,7 @@ def _enrich_finding(raw_finding):
         "description": description,
         "references": references,
         "remediation": remediation,
-        "target_type": "dependency",
+        "target_type": raw_finding.get("target_type", "dependency"),
     }
 
 
@@ -169,7 +169,7 @@ def get_trivy_scan_data(run_id=None):
             "dependencies": [],
             "container_images": [],
             "container_scanned": False,
-            "is_sample": True,
+            "is_sample": run_service.is_sample_data(),
         }
 
     raw_vulns = selected_run.get("vulnerabilities", {})

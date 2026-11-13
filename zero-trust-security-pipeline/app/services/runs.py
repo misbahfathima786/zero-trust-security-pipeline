@@ -14,15 +14,20 @@ from pathlib import Path
 
 SAMPLE_FILE = Path(__file__).resolve().parents[1] / "sample_data" / "runs.json"
 
-KNOWN_STATUSES = ("passed", "failed", "warning", "running", "pending", "blocked", "skipped")
+KNOWN_STATUSES = ("passed", "failed", "warning", "running", "pending", "blocked", "skipped", "not_applicable")
 SEVERITIES = ("critical", "high", "medium", "low", "info")
 
 STAGE_LABELS = {
+    "file_validation": "File Validation",
+    "project_extraction": "Project Extraction",
+    "gitleaks": "Gitleaks (Secrets)",
+    "trivy": "Trivy (Vulnerabilities)",
+    "sbom": "SBOM Generation",
+    "policy": "Policy Check",
+    "final_assessment": "Final Assessment",
+    # Legacy aliases:
     "code_push": "Code Push",
     "build": "Build",
-    "gitleaks": "Gitleaks",
-    "trivy": "Trivy",
-    "policy": "Policy Check",
 }
 
 SCAN_TYPES = {
@@ -37,10 +42,51 @@ _RUN_ID_RE = re.compile(r"^[0-9]{1,9}$")
 
 
 def _load():
-    """Return (runs, is_sample). Replace this body with the real loader."""
-    with open(SAMPLE_FILE, encoding="utf-8") as fh:
-        data = json.load(fh)
-    return data["runs"], bool(data.get("is_sample", False))
+    """Return (runs, is_sample) for current user or test environment."""
+    from flask import has_request_context, current_app
+    from flask_login import current_user
+    from app.models.scan import ScanRun
+
+    try:
+        if has_request_context():
+            # If user is authenticated, query user's real scans
+            if current_user and current_user.is_authenticated:
+                user_scans = (
+                    ScanRun.query.filter_by(user_id=current_user.id)
+                    .order_by(ScanRun.run_id.desc())
+                    .all()
+                )
+                if user_scans:
+                    runs = [s.get_data() for s in user_scans]
+                    return runs, False
+
+                # If in testing mode and no user scans in DB, allow sample data fallback for unit tests
+                if current_app.config.get("TESTING") and SAMPLE_FILE.is_file():
+                    with open(SAMPLE_FILE, encoding="utf-8") as fh:
+                        data = json.load(fh)
+                    return data["runs"], bool(data.get("is_sample", False))
+
+                # Real application with 0 scans: return empty list, is_sample=False
+                return [], False
+            else:
+                # Anonymous user
+                if current_app.config.get("TESTING") and SAMPLE_FILE.is_file():
+                    with open(SAMPLE_FILE, encoding="utf-8") as fh:
+                        data = json.load(fh)
+                    return data["runs"], bool(data.get("is_sample", False))
+                return [], False
+        else:
+            # Outside request context (e.g. testing)
+            all_scans = ScanRun.query.order_by(ScanRun.run_id.desc()).all()
+            if all_scans:
+                return [s.get_data() for s in all_scans], False
+            if SAMPLE_FILE.is_file():
+                with open(SAMPLE_FILE, encoding="utf-8") as fh:
+                    data = json.load(fh)
+                return data["runs"], bool(data.get("is_sample", False))
+            return [], False
+    except Exception:
+        return [], False
 
 
 def _norm(status):
@@ -118,6 +164,8 @@ def _scan_summary_text(key, status, run):
         return "Waiting for previous stage"
     if status == "blocked":
         return "Scanner error - result unavailable (not a clean result)"
+    if status == "not_applicable":
+        return "Not applicable for this upload type"
 
     if key == "gitleaks":
         n = run["secrets"]["count"]

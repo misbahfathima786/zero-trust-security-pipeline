@@ -1,92 +1,298 @@
 {% extends "layouts/app_shell.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import status_badge, severity_badge, empty_state %}
 
 {% set active_nav = "dashboard" %}
 
 {% block title %}Dashboard | SecureBuild{% endblock %}
 
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
 {% block page_header %}
     <h1>Dashboard</h1>
-    <p>Welcome to your security monitoring workspace.</p>
+    <p>Welcome to your zero-trust software supply chain security workspace.</p>
 {% endblock %}
 
 {% block page_content %}
 
-    <!-- Overview Cards -->
-    <section class="dashboard-section">
-        <h2>Security Overview</h2>
+    <!-- 1. Upload Files Section -->
+    <section class="upload-card" aria-labelledby="upload-heading">
+        <div class="upload-header">
+            <h2 id="upload-heading">{{ icon("scan", 20) }} Upload &amp; Scan Project</h2>
+            <p>Upload individual source files, text files (.txt for testing), dependency manifests (requirements.txt, package.json), or a complete project ZIP archive.</p>
+        </div>
+
+        <div id="upload-alert" class="notice notice--blocked" hidden></div>
+
+        <form id="upload-form" method="POST" action="{{ url_for('dashboard.upload') }}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="upload-dropzone" id="upload-dropzone">
+                <input type="file" id="file-input" name="files" multiple class="file-input-hidden" aria-label="Choose files to upload">
+                <div class="dropzone-icon">{{ icon("download", 36) }}</div>
+                <div class="dropzone-text">Drag and drop your project files or ZIP archive here</div>
+                <div class="dropzone-hint">Supports: .txt, .zip, .py, .js, .json, .yaml, requirements.txt, and source repositories (Max 50MB)</div>
+                <button type="button" class="btn btn--secondary" id="browse-btn">Browse Files</button>
+            </div>
+
+            <!-- Selected Files List -->
+            <div class="selected-files-container" id="selected-files-container" hidden>
+                <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--text-primary);">Selected Files for Security Scan:</div>
+                <ul class="selected-files-list" id="selected-files-list"></ul>
+            </div>
+
+            <div class="upload-controls">
+                <div class="upload-options">
+                    <input type="text" name="project_name" id="project_name" placeholder="Project or test name (optional)" aria-label="Project Name">
+                    <input type="text" name="branch" id="branch" placeholder="Branch name (default: main)" aria-label="Branch Name">
+                </div>
+                <button type="submit" class="btn btn--primary" id="upload-scan-btn" disabled>
+                    {{ icon("scan", 16) }} Upload &amp; Start Security Scan
+                </button>
+            </div>
+
+            <!-- Upload & Scan Progress Indicator -->
+            <div class="upload-progress-wrap" id="upload-progress-wrap" hidden>
+                <div class="progress-header">
+                    <span id="progress-text">Preparing security pipeline...</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <!-- 2. Security Overview Stats Cards -->
+    <section class="dashboard-section" aria-labelledby="stats-heading">
+        <h2 id="stats-heading">Security Overview</h2>
 
         <div class="stats-grid">
-
             <div class="stat-card">
                 <span class="stat-label">Pipeline Status</span>
-                <h3>--</h3>
-                <p>Awaiting integration</p>
+                <h3>
+                    {% if latest_scan %}
+                        {{ status_badge(latest_scan.overall_status) }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </h3>
+                <p>{% if latest_scan %}Build #{{ latest_scan.run_id }} on {{ latest_scan.branch }}{% else %}No scans yet{% endif %}</p>
             </div>
 
             <div class="stat-card">
                 <span class="stat-label">Potential Secrets</span>
-                <h3>--</h3>
-                <p>Scan data unavailable</p>
+                <h3>{{ latest_secrets if latest_secrets is not none else '0' }}</h3>
+                <p>{% if latest_secrets is not none and latest_secrets > 0 %}Secrets detected{% elif latest_scan %}Clean (0 secrets){% else %}Awaiting scan{% endif %}</p>
             </div>
 
             <div class="stat-card">
                 <span class="stat-label">Vulnerabilities</span>
-                <h3>--</h3>
-                <p>Scan data unavailable</p>
+                <h3>{{ latest_vulns if latest_vulns is not none else '0' }}</h3>
+                <p>{% if latest_vulns is not none and latest_vulns > 0 %}Vulnerabilities found{% elif latest_scan %}Clean / Not applicable{% else %}Awaiting scan{% endif %}</p>
             </div>
 
             <div class="stat-card">
-                <span class="stat-label">Latest Scan</span>
-                <h3>--</h3>
-                <p>Awaiting pipeline integration</p>
+                <span class="stat-label">Total Builds Scanned</span>
+                <h3>{{ total_scans }}</h3>
+                <p>{{ passed_scans }} Passed · {{ failed_scans }} Failed</p>
             </div>
-
         </div>
     </section>
 
+    <!-- 3. Latest Security Assessment (if scans exist) -->
+    {% if latest_scan %}
+    <section class="assessment-card" aria-labelledby="assessment-heading">
+        <div class="assessment-header">
+            <div class="assessment-title">
+                <h3 id="assessment-heading">Latest Security Assessment — Build #{{ latest_scan.run_id }}</h3>
+                <p>Scanned on {{ latest_scan.timestamp|format_datetime }} UTC · Commit <code>{{ latest_scan.commit }}</code></p>
+            </div>
+            <div>
+                {{ status_badge(latest_scan.overall_status) }}
+            </div>
+        </div>
 
-    <!-- Module Navigation -->
-    <section class="dashboard-section">
-        <h2>Project Modules</h2>
+        <div>
+            {% if latest_scan.overall_status == 'passed' %}
+                <p style="color: var(--passed); font-weight: 600; margin-bottom: 10px;">
+                    ✓ Zero-Trust Verification Succeeded: All security scans and defined policies passed.
+                </p>
+            {% elif latest_scan.overall_status == 'failed' %}
+                <p style="color: var(--failed); font-weight: 600; margin-bottom: 10px;">
+                    ✕ Security Violations Detected: Upload contains security policy violations or high-risk findings that require mitigation.
+                </p>
+            {% elif latest_scan.overall_status == 'warning' %}
+                <p style="color: var(--warning); font-weight: 600; margin-bottom: 10px;">
+                    ⚠ Security Scan Completed with Warnings: Review non-blocking vulnerabilities and advisories.
+                </p>
+            {% else %}
+                <p style="color: var(--blocked); font-weight: 600; margin-bottom: 10px;">
+                    ⛔ Scan Incomplete or Blocked: A scanner stage did not finish successfully.
+                </p>
+            {% endif %}
+
+            <div class="assessment-chips">
+                <span class="assessment-chip">Secrets: <strong>{{ latest_scan.secrets.count if latest_scan.secrets.count is not none else '0' }}</strong></span>
+                {% if latest_scan.vulnerabilities.counts %}
+                    <span class="assessment-chip">Critical: <strong>{{ latest_scan.vulnerabilities.counts.critical }}</strong></span>
+                    <span class="assessment-chip">High: <strong>{{ latest_scan.vulnerabilities.counts.high }}</strong></span>
+                    <span class="assessment-chip">Medium: <strong>{{ latest_scan.vulnerabilities.counts.medium }}</strong></span>
+                    <span class="assessment-chip">Low: <strong>{{ latest_scan.vulnerabilities.counts.low }}</strong></span>
+                {% else %}
+                    <span class="assessment-chip">Vulnerabilities: <strong>Not Applicable</strong></span>
+                {% endif %}
+                <span class="assessment-chip">Policy Evaluation: <strong>{{ latest_scan.policy.result|capitalize if latest_scan.policy.result else 'N/A' }}</strong></span>
+            </div>
+
+            <div class="assessment-actions">
+                <a href="{{ url_for('pipeline.detail', run_id=latest_scan.run_id) }}" class="btn btn--primary">
+                    View Pipeline Execution {{ icon("arrow-right", 15) }}
+                </a>
+                <a href="{{ url_for('scans.index') }}" class="btn btn--secondary">
+                    View Scan Findings {{ icon("scan", 15) }}
+                </a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- 4. Recent Scans & Uploads Management -->
+    <section class="dashboard-section" aria-labelledby="recent-scans-heading">
+        <h2>Recent Scans &amp; Uploads</h2>
+
+        {% if not runs %}
+            <div class="card">
+                {% call empty_state("No scans available", "Upload your project files, source code, or a .txt test file above to start your first zero-trust security scan.", "inbox") %}{% endcall %}
+            </div>
+        {% else %}
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Build / Project</th>
+                                <th scope="col">Date &amp; Time (UTC)</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Secrets</th>
+                                <th scope="col">Vulnerabilities</th>
+                                <th scope="col">Policy</th>
+                                <th scope="col" class="cell-action">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in runs %}
+                            <tr>
+                                <td>
+                                    <strong>Build #{{ r.run_id }}</strong>
+                                    <span class="cell-sub">{{ r.project_name if r.project_name else r.branch }}</span>
+                                </td>
+                                <td>
+                                    <time datetime="{{ r.timestamp }}">{{ r.timestamp|format_datetime }}</time>
+                                </td>
+                                <td>{{ status_badge(r.overall_status) }}</td>
+                                <td>
+                                    {% if r.secrets.count is not none %}
+                                        {% if r.secrets.count > 0 %}
+                                            <span style="color: var(--danger); font-weight: 600;">{{ r.secrets.count }} found</span>
+                                        {% else %}
+                                            <span style="color: var(--success);">0</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="cell-sub">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.vulnerabilities.counts is not none %}
+                                        {% set total_v = r.vulnerabilities.counts.critical + r.vulnerabilities.counts.high + r.vulnerabilities.counts.medium + r.vulnerabilities.counts.low %}
+                                        {% if total_v > 0 %}
+                                            <span style="color: var(--danger); font-weight: 600;">{{ total_v }}</span>
+                                            {% if r.vulnerabilities.counts.critical > 0 %}
+                                                <span class="cell-sub">({{ r.vulnerabilities.counts.critical }} crit)</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span style="color: var(--success);">0</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="cell-sub">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.policy.result %}
+                                        {{ status_badge(r.policy.result) }}
+                                    {% else %}
+                                        <span class="cell-sub">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="cell-action">
+                                    <div class="cell-actions">
+                                        <a href="{{ url_for('pipeline.detail', run_id=r.run_id) }}" class="btn btn--link">
+                                            View
+                                        </a>
+                                        <form method="POST" action="{{ url_for('scans.delete', run_id=r.run_id) }}" onsubmit="return confirm('Delete Build #{{ r.run_id }} and all its uploaded files and reports?');" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn--danger-text" title="Delete scan and files">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- 5. Module Navigation -->
+    <section class="dashboard-section" aria-labelledby="modules-heading">
+        <h2 id="modules-heading">Security Modules</h2>
 
         <div class="module-grid">
-
             <a href="{{ url_for('pipeline.latest') }}" class="module-card">
                 <span class="module-icon">⌘</span>
                 <h3>Pipeline Overview</h3>
-                <p>View pipeline execution and build status.</p>
+                <p>View step-by-step pipeline execution, stepper, and build logs.</p>
                 <span class="module-action">Open Module →</span>
             </a>
 
             <a href="{{ url_for('scans.index') }}" class="module-card">
                 <span class="module-icon">◈</span>
-                <h3>Security Scans</h3>
-                <p>Review secret detection and vulnerability scans.</p>
+                <h3>Scan Results</h3>
+                <p>Review secret detection and vulnerability findings per scan.</p>
                 <span class="module-action">Open Module →</span>
             </a>
 
-            <a href="#" class="module-card placeholder-link">
+            <a href="{{ url_for('vulnerabilities.index') }}" class="module-card">
                 <span class="module-icon">▤</span>
                 <h3>Vulnerability Reports</h3>
-                <p>Explore security findings and reports.</p>
+                <p>Detailed Trivy dependency findings, severity analysis, and fixes.</p>
                 <span class="module-action">Open Module →</span>
             </a>
 
-            <a href="#" class="module-card placeholder-link">
+            <a href="{{ url_for('sbom.index') }}" class="module-card">
                 <span class="module-icon">⬡</span>
                 <h3>SBOM</h3>
-                <p>Access software bill of materials information.</p>
+                <p>Access Software Bill of Materials in CycloneDX 1.5 standard.</p>
                 <span class="module-action">Open Module →</span>
             </a>
 
-            <a href="#" class="module-card placeholder-link">
+            <a href="{{ url_for('history.index') }}" class="module-card">
                 <span class="module-icon">◷</span>
                 <h3>Security History</h3>
-                <p>Track previous scans and security trends.</p>
+                <p>Track previous scans and multi-series security trends over time.</p>
                 <span class="module-action">Open Module →</span>
             </a>
-
         </div>
     </section>
 
+{% endblock %}
+
+{% block page_js %}
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

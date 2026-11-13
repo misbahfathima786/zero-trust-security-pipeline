@@ -1,0 +1,38 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:88f76053-41d8-4865-a624-aeec2eadbc26",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-11-13T06:53:41.953298+00:00",
+    "tools": [
+      {
+        "vendor": "SecureBuild",
+        "name": "SecureBuild SBOM Engine",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "zero-trust-security-pipeline",
+      "version": "build-42",
+      "description": "Software Supply Chain Security Platform Application"
+    },
+    "properties": [
+      {
+        "name": "build:id",
+        "value": "42"
+      },
+      {
+        "name": "build:commit",
+        "value": "a1b2c3d"
+      },
+      {
+        "name": "build:branch",
+        "value": "main"
+      }
+    ]
+  },
+  "components": [],
+  "dependencies": []
+}

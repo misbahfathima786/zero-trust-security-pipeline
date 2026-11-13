@@ -5,8 +5,9 @@
 {% set active_nav = "pipeline" %}
 
 {% set stage_icons = {
-    "code_push": "code-push", "build": "build", "gitleaks": "gitleaks",
-    "trivy": "trivy", "policy": "shield"
+    "file_validation": "scan", "project_extraction": "inbox", "gitleaks": "gitleaks",
+    "trivy": "trivy", "policy": "policy", "sbom": "sbom", "final_assessment": "shield",
+    "code_push": "code-push", "build": "build"
 } %}
 
 {% block title %}Build #{{ run.run_id }} | SecureBuild{% endblock %}

@@ -24,7 +24,11 @@
             </div>
         {% endcall %}
     {% else %}
-        {% call empty_state("No builds yet", "Push to the repository to start the first pipeline run.", "inbox") %}{% endcall %}
+        {% call empty_state("No builds yet", "Upload a project or test files from the Dashboard to start your first pipeline run.", "inbox") %}
+            <div class="empty-state__actions">
+                <a class="btn btn--primary" href="{{ url_for('dashboard.index') }}">Go to Dashboard &amp; Upload</a>
+            </div>
+        {% endcall %}
     {% endif %}
 </section>
 {% endblock %}

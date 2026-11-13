@@ -2,7 +2,7 @@
 import json
 import re
 
-from services import runs as run_service
+from app.services import runs as run_service
 
 
 # ---- access control -------------------------------------------------------
