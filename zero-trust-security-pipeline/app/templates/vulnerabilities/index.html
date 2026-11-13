@@ -1,0 +1,232 @@
+{% extends "layouts/app_shell.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import severity_badge, empty_state %}
+
+{% set active_nav = "vulnerabilities" %}
+
+{% block title %}Trivy Vulnerability Scan | SecureBuild{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vulnerabilities.css') }}">
+{% endblock %}
+
+{% block page_header %}
+    <div class="page-title-wrap">
+        <div>
+            <h1>Trivy Vulnerability Scan</h1>
+            <p>Dependencies &amp; Container Image Scan</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{ url_for('vulnerabilities.download_report', run_id=scan.run_id) }}" class="btn btn--primary" id="download-report-btn">
+                {{ icon("download", 16) }} Download Report
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+
+{% if is_sample %}
+<div class="notice notice--info" role="note">
+    <strong>Sample data.</strong> These findings reflect pipeline build #{{ scan.run_id or 40 }} vulnerability checks.
+</div>
+{% endif %}
+
+<div class="vuln-tabs" role="tablist" aria-label="Scan targets">
+    <button type="button" role="tab" class="tabs__tab active" id="tab-deps" aria-selected="true" aria-controls="panel-deps" tabindex="0">
+        Dependencies ({{ scan.dependencies|length }})
+    </button>
+    <button type="button" role="tab" class="tabs__tab" id="tab-container" aria-selected="false" aria-controls="panel-container" tabindex="-1">
+        Container Image ({{ scan.container_images|length }})
+    </button>
+</div>
+
+<!-- 5 Severity Summary Cards -->
+<section class="vuln-summary-grid" aria-label="Vulnerability Severity Summary">
+    <div class="vuln-card vuln-card--critical">
+        <span class="vuln-card__dot" aria-hidden="true"></span>
+        <div class="vuln-card__content">
+            <span class="vuln-card__label">Critical</span>
+            <span class="vuln-card__value" id="count-critical">{{ scan.counts.critical }}</span>
+        </div>
+    </div>
+    <div class="vuln-card vuln-card--high">
+        <span class="vuln-card__dot" aria-hidden="true"></span>
+        <div class="vuln-card__content">
+            <span class="vuln-card__label">High</span>
+            <span class="vuln-card__value" id="count-high">{{ scan.counts.high }}</span>
+        </div>
+    </div>
+    <div class="vuln-card vuln-card--medium">
+        <span class="vuln-card__dot" aria-hidden="true"></span>
+        <div class="vuln-card__content">
+            <span class="vuln-card__label">Medium</span>
+            <span class="vuln-card__value" id="count-medium">{{ scan.counts.medium }}</span>
+        </div>
+    </div>
+    <div class="vuln-card vuln-card--low">
+        <span class="vuln-card__dot" aria-hidden="true"></span>
+        <div class="vuln-card__content">
+            <span class="vuln-card__label">Low</span>
+            <span class="vuln-card__value" id="count-low">{{ scan.counts.low }}</span>
+        </div>
+    </div>
+    <div class="vuln-card vuln-card--info">
+        <span class="vuln-card__dot" aria-hidden="true"></span>
+        <div class="vuln-card__content">
+            <span class="vuln-card__label">Info</span>
+            <span class="vuln-card__value" id="count-info">{{ scan.counts.info }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- Dependencies Tab Panel -->
+<section class="card vuln-panel" id="panel-deps" role="tabpanel" aria-labelledby="tab-deps">
+    <div class="vuln-toolbar">
+        <div class="vuln-search">
+            <input type="text" id="vuln-search-input" class="input-text" placeholder="Search package or CVE..." aria-label="Search package or vulnerability ID">
+        </div>
+        <div class="vuln-filters">
+            <label for="vuln-severity-filter" class="sr-only">Filter by Severity</label>
+            <select id="vuln-severity-filter" class="select">
+                <option value="all">All Severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+                <option value="info">Info</option>
+            </select>
+        </div>
+    </div>
+
+    {% if not scan.dependencies %}
+        {% call empty_state("No vulnerabilities found", "All dependencies passed Trivy security checks.") %}{% endcall %}
+    {% else %}
+        <div class="table-wrap">
+            <table class="data-table" id="vuln-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Package</th>
+                        <th scope="col">Version</th>
+                        <th scope="col">Severity</th>
+                        <th scope="col">Fixed Version</th>
+                        <th scope="col" class="cell-action">Details</th>
+                    </tr>
+                </thead>
+                <tbody id="vuln-table-body">
+                    {% for item in scan.dependencies %}
+                    <tr data-severity="{{ item.severity }}" data-package="{{ item.package|lower }}" data-cve="{{ item.cve|lower }}" data-vuln-id="{{ item.vuln_id }}">
+                        <td class="cell-pkg">
+                            <strong>{{ item.package }}</strong>
+                            <span class="cell-sub">{{ item.cve }}</span>
+                        </td>
+                        <td><code>{{ item.version }}</code></td>
+                        <td>{{ severity_badge(item.severity) }}</td>
+                        <td>
+                            {% if item.fixed_version != "No fix available" %}
+                                <span class="fixed-badge">{{ item.fixed_version }}</span>
+                            {% else %}
+                                <span class="no-fix">No fix available</span>
+                            {% endif %}
+                        </td>
+                        <td class="cell-action">
+                            <button type="button" class="btn btn--link btn-view-vuln" data-vuln="{{ item|tojson|forceescape }}">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="vuln-no-match" class="empty-state" hidden>
+            <h3>No vulnerabilities match your filter</h3>
+            <p>Try resetting the search keyword or severity filter.</p>
+            <button type="button" class="btn btn--secondary" id="reset-vuln-filter">Reset Filters</button>
+        </div>
+
+        <div class="vuln-pagination" id="vuln-pagination">
+            <span class="pagination-info" id="vuln-pagination-info">Showing all {{ scan.dependencies|length }} findings</span>
+        </div>
+    {% endif %}
+</section>
+
+<!-- Container Image Tab Panel -->
+<section class="card vuln-panel" id="panel-container" role="tabpanel" aria-labelledby="tab-container" hidden>
+    {% if scan.container_images %}
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Package</th>
+                        <th scope="col">Version</th>
+                        <th scope="col">Severity</th>
+                        <th scope="col">Fixed Version</th>
+                        <th scope="col" class="cell-action">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in scan.container_images %}
+                    <tr>
+                        <td><strong>{{ item.package }}</strong><span class="cell-sub">{{ item.cve }}</span></td>
+                        <td><code>{{ item.version }}</code></td>
+                        <td>{{ severity_badge(item.severity) }}</td>
+                        <td>{{ item.fixed_version }}</td>
+                        <td class="cell-action">
+                            <button type="button" class="btn btn--link btn-view-vuln" data-vuln="{{ item|tojson|forceescape }}">View</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        {% call empty_state("No Container Image Scan Data Available", "Container image scanning has not been executed yet for this build. Only dependency scanning was completed in the pipeline.", "shield") %}
+        {% endcall %}
+    {% endif %}
+</section>
+
+<!-- Detail Modal / Dialog -->
+<dialog class="modal" id="vuln-modal" aria-labelledby="vuln-modal-title">
+    <div class="modal__head">
+        <h2 id="vuln-modal-title">Vulnerability Details</h2>
+        <button type="button" class="btn btn--icon" id="vuln-modal-close" aria-label="Close details">
+            {{ icon("close", 18) }}
+        </button>
+    </div>
+    <div class="modal__body" id="vuln-modal-body">
+        <div class="vuln-detail-header">
+            <div class="vuln-detail-pkg" id="modal-pkg-name">-</div>
+            <div id="modal-severity-wrap"></div>
+        </div>
+
+        <dl class="detail-facts vuln-facts">
+            <div><dt>Vulnerability ID</dt><dd><code id="modal-cve">-</code></dd></div>
+            <div><dt>Installed Version</dt><dd><code id="modal-installed-ver">-</code></dd></div>
+            <div><dt>Fixed Version</dt><dd><strong id="modal-fixed-ver">-</strong></dd></div>
+            <div><dt>Scanner Target</dt><dd id="modal-target">Python dependencies (Trivy)</dd></div>
+        </dl>
+
+        <div class="vuln-section">
+            <h3>Description</h3>
+            <p id="modal-description" class="vuln-desc">-</p>
+        </div>
+
+        <div class="vuln-section vuln-remediation-box">
+            <h3>Remediation Recommendation</h3>
+            <p id="modal-remediation">-</p>
+        </div>
+
+        <div class="vuln-section">
+            <h3>Primary References</h3>
+            <ul id="modal-references" class="vuln-refs-list"></ul>
+        </div>
+    </div>
+</dialog>
+
+{% endblock %}
+
+{% block page_js %}
+    <script src="{{ url_for('static', filename='js/vulnerabilities.js') }}"></script>
+{% endblock %}

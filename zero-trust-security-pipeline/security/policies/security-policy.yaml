@@ -1,1 +1,17 @@
+# SecureBuild Zero-Trust Security Policy
+version: "1.0"
+policy:
+  fail_on_secrets: true
+  max_allowed_secrets: 0
 
+  vulnerabilities:
+    fail_on_critical: true
+    max_critical: 0
+    fail_on_high: true
+    max_high: 0
+    warn_on_medium: true
+    max_medium_warnings: 5
+
+  dependencies:
+    enforce_lockfile: false
+    block_unfixed_vulnerabilities: false

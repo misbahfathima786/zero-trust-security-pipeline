@@ -19,6 +19,11 @@
         The result is unavailable and must not be treated as clean. Re-run the pipeline once the scanner problem is fixed.
     </div>
 
+{% elif scan.status == 'not_applicable' %}
+    <div class="notice notice--info" role="note">
+        <strong>Not applicable for this upload.</strong> This scanner requires package manifests (such as requirements.txt or package.json), which were not present in the uploaded files.
+    </div>
+
 {% elif scan.status in ('running', 'pending') %}
     <p class="detail-note">{{ scan.details }}. Results will appear here when the scan finishes.</p>
 

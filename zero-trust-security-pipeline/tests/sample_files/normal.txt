@@ -1,0 +1,9 @@
+This is a plain text file for testing SecureBuild file upload.
+
+It contains no secrets, no credentials, and no sensitive information.
+
+The Gitleaks scanner should process this file and find zero findings.
+Trivy is not applicable to plain text files.
+Policy evaluation: should pass with no violations.
+
+SecureBuild Zero-Trust Security Pipeline — test file v1.0

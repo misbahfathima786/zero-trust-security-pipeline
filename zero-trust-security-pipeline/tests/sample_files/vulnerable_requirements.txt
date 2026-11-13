@@ -1,0 +1,23 @@
+# Vulnerable requirements.txt for Trivy scanning test
+# IMPORTANT: These versions are intentionally outdated/vulnerable for testing only.
+# Do NOT use these versions in a real project.
+
+# Flask 2.2.5 — known vulnerable (CVE in earlier 2.x releases)
+flask==2.2.5
+
+# Werkzeug 2.3.7 — known vulnerable (DoS vulnerability)
+werkzeug==2.3.7
+
+# Cryptography 36.0.0 — known vulnerable (RSA decryption)
+cryptography==36.0.0
+
+# Jinja2 3.1.2 — known vulnerable (sandbox bypass)
+jinja2==3.1.2
+
+# Requests 2.28.0 — older version
+requests==2.28.0
+
+# Expected result:
+# Trivy should detect vulnerabilities in cryptography, flask, werkzeug, jinja2.
+# SBOM should be generated listing these packages.
+# Policy: Should trigger VIOLATION if critical or high vulnerabilities found.

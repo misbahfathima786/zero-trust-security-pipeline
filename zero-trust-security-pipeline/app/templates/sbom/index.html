@@ -1,0 +1,188 @@
+{% extends "layouts/app_shell.html" %}
+{% from "components/icons.html" import icon %}
+{% from "components/ui.html" import empty_state %}
+
+{% set active_nav = "sbom" %}
+
+{% block title %}Software Bill of Materials (SBOM) | SecureBuild{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sbom.css') }}">
+{% endblock %}
+
+{% block page_header %}
+    <div class="page-title-wrap">
+        <div>
+            <h1>Software Bill of Materials (SBOM)</h1>
+            <p>Complete list of software components in your application.</p>
+        </div>
+        <div class="page-header-actions">
+            {% if sbom.components %}
+            <a href="{{ url_for('sbom.export_sbom', run_id=sbom.run_id) }}" class="btn btn--primary" id="export-sbom-btn">
+                {{ icon("download", 16) }} Export SBOM
+            </a>
+            {% else %}
+            <form method="POST" action="{{ url_for('sbom.generate') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn--primary">
+                    {{ icon("sbom", 16) }} Generate SBOM
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+
+{% if not sbom.components %}
+    <section class="card">
+        {% call empty_state("No SBOM generated yet", "Generate a Software Bill of Materials in CycloneDX format for your project dependencies.", "sbom") %}
+            <form method="POST" action="{{ url_for('sbom.generate') }}" class="empty-state__actions">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn--primary">
+                    {{ icon("sbom", 16) }} Generate SBOM Now
+                </button>
+            </form>
+        {% endcall %}
+    </section>
+{% else %}
+
+<!-- 3 Summary Cards -->
+<section class="sbom-summary-grid" aria-label="SBOM Component Inventory Summary">
+    <div class="sbom-card">
+        <span class="sbom-card__icon">{{ icon("sbom", 22) }}</span>
+        <div>
+            <span class="sbom-card__value" id="count-total">{{ sbom.total_count }}</span>
+            <span class="sbom-card__label">Total Components</span>
+        </div>
+    </div>
+    <div class="sbom-card">
+        <span class="sbom-card__icon sbom-card__icon--direct">{{ icon("check-circle", 22) }}</span>
+        <div>
+            <span class="sbom-card__value" id="count-direct">{{ sbom.direct_count }}</span>
+            <span class="sbom-card__label">Direct Dependencies</span>
+        </div>
+    </div>
+    <div class="sbom-card">
+        <span class="sbom-card__icon sbom-card__icon--transitive">{{ icon("pipeline", 22) }}</span>
+        <div>
+            <span class="sbom-card__value" id="count-transitive">{{ sbom.transitive_count }}</span>
+            <span class="sbom-card__label">Transitive Dependencies</span>
+        </div>
+    </div>
+</section>
+
+<!-- Component Inventory Table -->
+<section class="card" aria-labelledby="sbom-inventory-title">
+    <div class="sbom-toolbar">
+        <div class="sbom-search">
+            <input type="text" id="sbom-search-input" class="input-text" placeholder="Search component name..." aria-label="Search component">
+        </div>
+        <div class="sbom-filters">
+            <select id="sbom-type-filter" class="select" aria-label="Filter by dependency type">
+                <option value="all">All Types</option>
+                <option value="Direct">Direct</option>
+                <option value="Transitive">Transitive</option>
+            </select>
+            <select id="sbom-license-filter" class="select" aria-label="Filter by license">
+                <option value="all">All Licenses</option>
+                {% for lic in sbom.licenses %}
+                <option value="{{ lic }}">{{ lic }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data-table" id="sbom-table">
+            <thead>
+                <tr>
+                    <th scope="col">Component</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">License</th>
+                    <th scope="col">Type</th>
+                    <th scope="col" class="cell-action">Details</th>
+                </tr>
+            </thead>
+            <tbody id="sbom-table-body">
+                {% for item in components %}
+                <tr data-name="{{ item.name|lower }}" data-type="{{ item.type }}" data-license="{{ item.license }}">
+                    <td class="cell-component">
+                        <strong>{{ item.name }}</strong>
+                        <span class="cell-sub">{{ item.purl }}</span>
+                    </td>
+                    <td><code>{{ item.version }}</code></td>
+                    <td>
+                        <span class="license-tag">{{ item.license }}</span>
+                    </td>
+                    <td>
+                        <span class="dep-badge dep-badge--{{ item.type|lower }}">{{ item.type }}</span>
+                    </td>
+                    <td class="cell-action">
+                        <button type="button" class="btn btn--link btn-view-component" data-component="{{ item|tojson|forceescape }}">
+                            View
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="sbom-no-match" class="empty-state" hidden>
+        <h3>No components match your search</h3>
+        <p>Try resetting the component search or filter options.</p>
+        <button type="button" class="btn btn--secondary" id="reset-sbom-filter">Reset Filters</button>
+    </div>
+
+    <div class="sbom-pagination" id="sbom-pagination">
+        <span class="pagination-info" id="sbom-pagination-info">Showing all {{ sbom.total_count }} components</span>
+        <span class="sbom-format-badge">Format: {{ sbom.format }}</span>
+    </div>
+</section>
+
+<!-- Component Details Modal -->
+<dialog class="modal" id="component-modal" aria-labelledby="comp-modal-title">
+    <div class="modal__head">
+        <h2 id="comp-modal-title">Component Details</h2>
+        <button type="button" class="btn btn--icon" id="comp-modal-close" aria-label="Close details">
+            {{ icon("close", 18) }}
+        </button>
+    </div>
+    <div class="modal__body" id="comp-modal-body">
+        <div class="comp-detail-header">
+            <div class="comp-detail-title" id="comp-modal-name">-</div>
+            <span id="comp-modal-badge" class="dep-badge">-</span>
+        </div>
+
+        <dl class="detail-facts comp-facts">
+            <div><dt>Installed Version</dt><dd><code id="comp-modal-version">-</code></dd></div>
+            <div><dt>License</dt><dd><strong id="comp-modal-license">-</strong></dd></div>
+            <div><dt>Package URL (PURL)</dt><dd><code id="comp-modal-purl">-</code></dd></div>
+            <div><dt>Classification</dt><dd id="comp-modal-type">-</dd></div>
+            <div><dt>Associated Build</dt><dd>Build #{{ sbom.run_id }} (commit <code>{{ sbom.commit }}</code>)</dd></div>
+            <div><dt>Target Ecosystem</dt><dd>PyPI (Python 3.12)</dd></div>
+        </dl>
+
+        <div class="comp-section">
+            <h3>Package Description</h3>
+            <p id="comp-modal-desc" class="comp-desc">-</p>
+        </div>
+
+        <div class="comp-section">
+            <h3>Standard Compliance</h3>
+            <p class="comp-standard-info">
+                This component specification complies with the CycloneDX 1.5 standard and is cataloged for automated SBOM audits and CVE correlation.
+            </p>
+        </div>
+    </div>
+</dialog>
+
+{% endif %}
+
+{% endblock %}
+
+{% block page_js %}
+    <script src="{{ url_for('static', filename='js/sbom.js') }}"></script>
+{% endblock %}
